@@ -1,11 +1,20 @@
 import argparse
 import os
 import sys
+import json
 
 from openai import OpenAI
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
+
+def execute_tool(choice: dict) -> str:
+    tool_call = choice["message"]["tool_calls"][0]
+    function = tool_call["function"]
+    function_name = function["name"]
+    function_arguments = json.loads(function["arguments"])
+    with open(function_arguments["file_path"]) as f:
+        return f.read()
 
 
 def main():
@@ -51,7 +60,8 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(chat.choices[0].message.content)
+    result = execute_tool(chat.choices[0])
+    print(result)
 
 
 if __name__ == "__main__":
