@@ -11,8 +11,8 @@ BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v
 def execute_tool(choice: dict) -> str:
     tool_call = choice.message.tool_calls[0]
     function = tool_call.function
-    function_name = function["name"]
-    function_arguments = json.loads(function["arguments"])
+    function_name = function.name
+    function_arguments = json.loads(function.arguments)
     with open(function_arguments["file_path"]) as f:
         return f.read()
 
