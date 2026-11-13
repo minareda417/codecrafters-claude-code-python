@@ -9,6 +9,7 @@ API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
 def execute_tool(choice: dict) -> str:
+    print(choice)
     tool_call = choice["message"]["tool_calls"][0]
     function = tool_call["function"]
     function_name = function["name"]
