@@ -18,23 +18,25 @@ def main():
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-    tools = {
-        "type": "function",
-        "function": {
-            "name": "Read",
-            "description": "Read and return the contents of a file",
-            "parameters": {
-            "type": "object",
-            "properties": {
-                "file_path": {
-                "type": "string",
-                "description": "The path to the file to read"
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "Read",
+                "description": "Read and return the contents of a file",
+                "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                    "type": "string",
+                    "description": "The path to the file to read"
+                    }
+                },
+                "required": ["file_path"]
                 }
-            },
-            "required": ["file_path"]
             }
         }
-    }
+    ]
 
     chat = client.chat.completions.create(
         model="anthropic/claude-haiku-4.5",
