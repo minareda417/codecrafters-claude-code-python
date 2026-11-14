@@ -41,14 +41,21 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
 def agent_loop(client: OpenAI, p):
     if p[0] == '/':
         command = p.split()
-        skill = command[0]
-        file_path = ".claude/skills/"+skill+"/SKILL.md"
-        if len(command) > 1:
-            arguments = command[1:]
+        skills = []
+        idx = 0
+        while command[idx][0] == '/' and idx < len(command):
+            skills.append(command[idx][1:])
+            idx += 1
+        print(skills)
+        if idx <= len(command) - 1:
+            arguments = command[idx:]
         else:
             arguments = None
-        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {skill[1:]}: ..."},
-                    {"role": "user", "content": get_skill_content(file_path, arguments)}]
+        print(arguments)
+        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}: ..."}]
+        for skill in skills:
+            file_path = ".claude/skills/"+skill+"/SKILL.md"
+            messages.append({"role": "user", "content": get_skill_content(file_path, arguments)})
     else:
         messages=[{"role": "user", "content": p}]
 
