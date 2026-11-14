@@ -20,7 +20,7 @@ def _replace_placeholders(line: str, arguments: list[str]) -> str:
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
 
-def get_skill_content(file_path: str, arguments: list[str]) -> str:
+def _get_skill_content(file_path: str, arguments: list[str]) -> str:
     content = ""
     with open(file_path, 'r') as f:
         counter = 0
@@ -37,22 +37,25 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
         f.close()
     return content
 
-def agent_loop(client: OpenAI, p):
+def _get_skills_messages(p: str) -> list[dict]:
+    command = p.split()
+    skills = []
+    idx = 0
+    while idx < len(command) and command[idx][0] == '/' :
+        skills.append(command[idx][1:])
+        idx += 1
+    if idx <= len(command) - 1:
+        arguments = command[idx:]
+    else:
+        arguments = None
+    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}: ..."}]
+    for skill in skills:
+        file_path = ".claude/skills/"+skill+"/SKILL.md"
+        messages.append({"role": "user", "content": _get_skill_content(file_path, arguments)})
+
+def agent_loop(client: OpenAI, p: str):
     if p[0] == '/':
-        command = p.split()
-        skills = []
-        idx = 0
-        while idx < len(command) and command[idx][0] == '/' :
-            skills.append(command[idx][1:])
-            idx += 1
-        if idx <= len(command) - 1:
-            arguments = command[idx:]
-        else:
-            arguments = None
-        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}: ..."}]
-        for skill in skills:
-            file_path = ".claude/skills/"+skill+"/SKILL.md"
-            messages.append({"role": "user", "content": get_skill_content(file_path, arguments)})
+        messages = _get_skills_messages(p)
     else:
         messages=[{"role": "user", "content": p}]
 
