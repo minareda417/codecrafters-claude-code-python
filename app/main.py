@@ -79,7 +79,7 @@ def _bash(command: str):
     print(command)
     result = subprocess.run(args=command, capture_output=True, text=True)
     print(result)
-    if result.stderr is not None:
+    if result.returncode == 1:
         print(result.stderr)
         return result.stderr
     print(result.stdout)
