@@ -70,6 +70,7 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
     elif function_name == "Write":
         return _write(arguments)
     elif function_name == "Bash":
+        print(arguments)
         return _bash(arguments)
 
 def _read(arguments: dict) -> str:
@@ -85,6 +86,7 @@ def _write(arguments: dict) -> str:
 
 def _bash(arguments: dict) -> str:
     command = arguments["command"].split()
+    print(command)
     result = subprocess.run(args=command, capture_output=True, text=True)
     if result.returncode == 1:        
         return result.stderr
