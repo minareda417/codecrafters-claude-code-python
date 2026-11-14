@@ -14,8 +14,8 @@ BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v
 
 def _replace_placeholders(line: str, arguments: list[str]) -> str:
     line = re.sub("$ARGUMENTS", " ".join(arguments), line)
-    line = re.sub(r"\$ARGUMENT\[\d+\]", lambda m: str(arguments[int(m.group(1))]), line)
-    line = re.sub(r"\$\d+", lambda m: str(arguments[int(m.group(1))]), line)
+    line = re.sub(r"\$ARGUMENT\[(\d+)\]", lambda m: str(arguments[int(m.group(1))]), line)
+    line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
 
 def get_skill_content(file_path: str, arguments: list[str]) -> str:
