@@ -36,20 +36,17 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
             content += _replace_placeholders(line, arguments)
             # content += line
         f.close()
-    print(content)
     return content
 
 def agent_loop(client: OpenAI, p):
     if p[0] == '/':
         command = p.split()
-        print(command)
         skill = command[0]
         file_path = ".claude/skills/"+skill+"/SKILL.md"
         if len(command) > 1:
             arguments = command[1:]
         else:
             arguments = None
-        print(arguments)
         messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {skill[1:]}: ..."},
                     {"role": "user", "content": get_skill_content(file_path, arguments)}]
     else:
