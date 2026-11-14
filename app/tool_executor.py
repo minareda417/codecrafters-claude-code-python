@@ -84,8 +84,6 @@ def _write(arguments: dict) -> str:
     return content
 
 def _bash(arguments: dict) -> str:
-    # command = arguments["command"].split()
-    print(arguments["command"])
     result = subprocess.run(args=arguments["command"], shell= True, capture_output=True, text=True)
     if result.returncode == 1:        
         return result.stderr
