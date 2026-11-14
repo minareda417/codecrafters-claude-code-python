@@ -60,32 +60,32 @@ tools = [
     }
 ]
 
-class ToolExecutor:
-    def execute(self, tool_call: ChatCompletionMessageFunctionToolCall):
-        function = tool_call.function
-        function_name = function.name
-        arguments = json.loads(function.arguments)
-        if function_name == "Read":
-            return self._read(arguments)
-        elif function_name == "Write":
-            return self._write(arguments)
-        elif function_name == "Bash":
-            return self._bash(arguments)
 
-    def _read(self, arguments: dict) -> str:
-        with open(arguments["file_path"], 'r') as f:
-                return f.read()
+def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
+    function = tool_call.function
+    function_name = function.name
+    arguments = json.loads(function.arguments)
+    if function_name == "Read":
+        return _read(arguments)
+    elif function_name == "Write":
+        return _write(arguments)
+    elif function_name == "Bash":
+        return _bash(arguments)
 
-    def _write(self, arguments: dict) -> str:
-        content = arguments["content"]
-        with open(arguments["file_path"], 'w') as f:
-            f.write(content)
-            f.close()
-        return content
+def _read(arguments: dict) -> str:
+    with open(arguments["file_path"], 'r') as f:
+            return f.read()
 
-    def _bash(self, arguments: dict) -> str:
-        command = arguments["command"].split()
-        result = subprocess.run(args=command, capture_output=True, text=True)
-        if result.returncode == 1:        
-            return result.stderr
-        return result.stdout
+def _write(arguments: dict) -> str:
+    content = arguments["content"]
+    with open(arguments["file_path"], 'w') as f:
+        f.write(content)
+        f.close()
+    return content
+
+def _bash(arguments: dict) -> str:
+    command = arguments["command"].split()
+    result = subprocess.run(args=command, capture_output=True, text=True)
+    if result.returncode == 1:        
+        return result.stderr
+    return result.stdout

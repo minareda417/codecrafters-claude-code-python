@@ -6,7 +6,7 @@ import subprocess
 
 from openai import OpenAI
 
-from tool_executor import tools, ToolExecutor
+from tool_executor import tools, execute_tool
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
@@ -122,7 +122,7 @@ def agent_loop(client: OpenAI, p):
 
         for tool_call in tool_calls:
             print(type(tool_call))
-            result = executor.execute(tool_call)
+            result = execute_tool(tool_call)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 
 
