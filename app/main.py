@@ -35,6 +35,7 @@ def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
                 break
             content += _replace_placeholders(line, arguments)
         f.close()
+    print(content)
     return content
 
 def _get_skills_messages(p: str) -> list[dict]:
