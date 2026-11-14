@@ -120,7 +120,6 @@ def agent_loop(client: OpenAI, p):
             break
 
         for tool_call in tool_calls:
-            print(type(tool_call))
             result = execute_tool(tool_call)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 
