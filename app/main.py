@@ -73,7 +73,6 @@ def agent_loop(client: OpenAI, p: str):
         tool_calls = message.tool_calls
 
         if tool_calls is None:
-            print(message.content)
             break
 
         for tool_call in tool_calls:
