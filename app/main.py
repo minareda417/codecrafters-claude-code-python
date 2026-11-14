@@ -52,6 +52,7 @@ def _get_skills_messages(p: str) -> list[dict]:
     for skill in skills:
         file_path = ".claude/skills/"+skill+"/SKILL.md"
         messages.append({"role": "user", "content": _get_skill_content(file_path, arguments)})
+    return messages
 
 def agent_loop(client: OpenAI, p: str):
     if p[0] == '/':
