@@ -89,7 +89,6 @@ def _execute_tool(tool_call):
     function = tool_call.function
     function_name = function.name
     arguments = json.loads(function.arguments)
-    print(type(arguments))
     if function_name == "Read":
         return _read(arguments)
     elif function_name == "Write":
