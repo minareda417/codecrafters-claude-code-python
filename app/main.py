@@ -76,13 +76,9 @@ def _write(file_path: str, content: str):
         f.write(content)
 
 def _bash(command: str):
-    print(command)
     result = subprocess.run(args=command, capture_output=True, text=True)
-    print(result)
-    if result.returncode == 1:
-        print(result.stderr)
+    if result.returncode == 1:        
         return result.stderr
-    print(result.stdout)
     return result.stdout
 
 def _execute_tool(tool_call):
