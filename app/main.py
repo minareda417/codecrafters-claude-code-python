@@ -36,7 +36,9 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
 
 def agent_loop(client: OpenAI, p):
     if p[0] == '/':
+        print(p)
         command = p.split()
+        print(command)
         skill = p[0]
         file_path = ".claude/skills/"+skill+"/SKILL.md"
         if len(p) > 1:
