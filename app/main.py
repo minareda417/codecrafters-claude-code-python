@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import json
+import subprocess
 
 from openai import OpenAI
 
@@ -74,8 +75,11 @@ def _write(file_path: str, content: str):
     with open(file_path, 'w') as f:
         f.write(content)
 
-def _bash():
-    pass
+def _bash(command: str):
+    result = subprocess.run(args=command, capture_output=True)
+    if result.stderr is not None:
+        return result.stderr
+    return result.stdout
 
 def _execute_tool(tool_call):
     function = tool_call.function
@@ -90,8 +94,9 @@ def _execute_tool(tool_call):
         _write(file_path, content)
         return content
     elif function_name == "Bash":
-        print(function)
-
+        arguments = json.loads(function.arguments)
+        command = arguments["command"]
+        return _bash(command)
 
 def agent_loop(client: OpenAI, p):
     messages=[{"role": "user", "content": p}]
