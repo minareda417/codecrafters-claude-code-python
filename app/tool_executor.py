@@ -70,7 +70,6 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
     elif function_name == "Write":
         return _write(arguments)
     elif function_name == "Bash":
-        print(arguments)
         return _bash(arguments)
 
 def _read(arguments: dict) -> str:
