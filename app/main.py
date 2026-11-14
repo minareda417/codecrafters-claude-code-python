@@ -46,7 +46,24 @@ tools = [
             }
             }
         }
-}
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "Bash",
+            "description": "Execute a shell command",
+            "parameters": {
+            "type": "object",
+            "required": ["command"],
+            "properties": {
+                "command": {
+                "type": "string",
+                "description": "The command to execute"
+                }
+            }
+            }
+        }
+    }
 ]
 
 def _read(file_path: str) -> str:
@@ -57,6 +74,9 @@ def _write(file_path: str, content: str):
     with open(file_path, 'w') as f:
         f.write(content)
 
+def _bash():
+    pass
+
 def _execute_tool(tool_call):
     function = tool_call.function
     function_name = function.name
@@ -64,12 +84,13 @@ def _execute_tool(tool_call):
         function_arguments = json.loads(function.arguments)
         return _read(function_arguments["file_path"])
     elif function_name == "Write":
-        print(function)
         arguments = json.loads(function.arguments)
         file_path = arguments["file_path"]
         content = arguments["content"]
         _write(file_path, content)
         return content
+    elif function_name == "Bash":
+        print(function)
 
 
 def agent_loop(client: OpenAI, p):
