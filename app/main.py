@@ -11,7 +11,7 @@ from .tool_executor import tools, execute_tool
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
-def get_skill_content(file_path: str) -> str:
+def get_skill_content(file_path: str, arguments: list[str]) -> str:
     content = ""
     with open(file_path, 'r') as f:
         counter = 0
@@ -26,13 +26,25 @@ def get_skill_content(file_path: str) -> str:
                 break
             content += line
         f.close()
+    if arguments is not None:
+        argumennts_text = ""
+        for argument in arguments:
+            argumennts_text += argument
+            argumennts_text += " "
+        content += f"ARGUMENTS: {argumennts_text}"
     return content
 
 def agent_loop(client: OpenAI, p):
     if p[0] == '/':
-        file_path = ".claude/skills/"+p+"/SKILL.md"
-        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {p[1:]}: ..."},
-                    {"role": "user", "content": get_skill_content(file_path)}]
+        command = p.split()
+        skill = p[0]
+        file_path = ".claude/skills/"+skill+"/SKILL.md"
+        if len(arguments) > 1:
+            arguments = p[1:]
+        else:
+            arguments = None
+        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {skill[1:]}: ..."},
+                    {"role": "user", "content": get_skill_content(file_path, arguments)}]
     else:
         messages=[{"role": "user", "content": p}]
 
