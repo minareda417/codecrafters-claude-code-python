@@ -13,7 +13,7 @@ API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
 def _replace_placeholders(line: str, arguments: list[str]) -> str:
-    line = re.sub("$ARGUMENTS", " ".join(arguments), line)
+    line = re.sub("\b$ARGUMENTS\b", " ".join(arguments), line)
     line = re.sub(r"\$ARGUMENT\[(\d+)\]", lambda m: str(arguments[int(m.group(1))]), line)
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
