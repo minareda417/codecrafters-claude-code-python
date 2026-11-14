@@ -84,17 +84,16 @@ def _bash(command: str):
 def _execute_tool(tool_call):
     function = tool_call.function
     function_name = function.name
+    arguments = json.loads(function.arguments)
+    print(type(arguments))
     if function_name == "Read":
-        function_arguments = json.loads(function.arguments)
-        return _read(function_arguments["file_path"])
+        return _read(arguments["file_path"])
     elif function_name == "Write":
-        arguments = json.loads(function.arguments)
         file_path = arguments["file_path"]
         content = arguments["content"]
         _write(file_path, content)
         return content
     elif function_name == "Bash":
-        arguments = json.loads(function.arguments)
         command = arguments["command"].split()
         return _bash(command)
 
