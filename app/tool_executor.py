@@ -1,6 +1,5 @@
 import subprocess
 import json
-from pathlib import Path
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
 tools = [
@@ -84,17 +83,8 @@ def _write(arguments: dict) -> str:
         f.close()
     return content
 
-def _is_bash_script(file_path: str) -> bool:
-    path = Path(file_path)
-    if not path.is_file:
-        return False
-    if path.suffix == ".sh":
-        return True
-
 def _bash(arguments: dict) -> str:
     command = arguments["command"].split()
-    if _is_bash_script(command[0]):
-        command.insert(0, "bash")
     print(command)
     result = subprocess.run(args=command, capture_output=True, text=True)
     if result.returncode == 1:        
