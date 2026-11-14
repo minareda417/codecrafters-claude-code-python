@@ -76,7 +76,9 @@ def _write(file_path: str, content: str):
         f.write(content)
 
 def _bash(command: str):
+    print(command)
     result = subprocess.run(args=command, capture_output=True, text=True)
+    print(result)
     if result.stderr is not None:
         print(result.stderr)
         return result.stderr
