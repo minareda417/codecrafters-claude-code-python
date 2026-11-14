@@ -31,7 +31,7 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
         for argument in arguments:
             argumennts_text += argument
             argumennts_text += " "
-        content += f"ARGUMENTS: {argumennts_text}"
+        content += f"\nARGUMENTS: {argumennts_text}"
     return content
 
 def agent_loop(client: OpenAI, p):
@@ -39,7 +39,7 @@ def agent_loop(client: OpenAI, p):
         command = p.split()
         skill = p[0]
         file_path = ".claude/skills/"+skill+"/SKILL.md"
-        if len(arguments) > 1:
+        if len(p) > 1:
             arguments = p[1:]
         else:
             arguments = None
