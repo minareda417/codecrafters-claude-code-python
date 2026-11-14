@@ -53,7 +53,7 @@ def _read(file_path: str) -> str:
     with open(file_path, 'r') as f:
             return f.read()
 
-def _write(file_path, content):
+def _write(file_path: str, content: str):
     with open(file_path, 'w') as f:
         return f.write(content)
 
@@ -65,8 +65,9 @@ def _execute_tool(tool_call):
         return _read(function_arguments["file_path"])
     elif function_name == "Write":
         print(function)
-        file_path = function.arguments.file_path
-        content = function.content
+        arguments = json.loads(function.arguments)
+        file_path = arguments["file_path"]
+        content = arguments["content"]
         return _write(file_path, content)
 
 
