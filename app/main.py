@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import subprocess
+import re
 
 from openai import OpenAI
 
@@ -10,6 +11,12 @@ from .tool_executor import tools, execute_tool
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
+
+def _replace_placeholders(line: str, arguments: list[str]) -> str:
+    line = re.sub("$ARGUMENTS", " ".join(arguments), line)
+    line = re.sub(r"\$ARGUMENT\[\d+\]", lambda m: str(arguments[int(m.group(1))]), line)
+    line = re.sub(r"\$\d+", lambda m: str(arguments[int(m.group(1))]), line)
+    return line
 
 def get_skill_content(file_path: str, arguments: list[str]) -> str:
     content = ""
@@ -24,14 +31,8 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
             line = f.readline()
             if not line:
                 break
-            content += line
+            content += _replace_placeholders(line, arguments)
         f.close()
-    if arguments is not None:
-        argumennts_text = ""
-        for argument in arguments:
-            argumennts_text += argument
-            argumennts_text += " "
-        content += f"\nARGUMENTS: {argumennts_text}"
     return content
 
 def agent_loop(client: OpenAI, p):
