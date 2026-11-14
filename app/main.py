@@ -65,9 +65,8 @@ def _execute_tool(tool_call):
         return _read(function_arguments["file_path"])
     elif function_name == "Write":
         print(function)
-        properties = function.parameters.properties
-        file_path = properties.file_path
-        content = properties.content
+        file_path = function.file_path
+        content = function.content
         return _write(file_path, content)
 
 
