@@ -67,15 +67,19 @@ tools = [
     }
 ]
 
-def _read(file_path: str) -> str:
-    with open(file_path, 'r') as f:
+def _read(arguments: dict) -> str:
+    with open(arguments["file_path"], 'r') as f:
             return f.read()
 
-def _write(file_path: str, content: str):
-    with open(file_path, 'w') as f:
+def _write(arguments: dict) -> str:
+    content = arguments["content"]
+    with open(arguments["file_path"], 'w') as f:
         f.write(content)
+        f.close()
+    return content
 
-def _bash(command: str):
+def _bash(arguments: dict) -> str:
+    command = arguments["command"].split()
     result = subprocess.run(args=command, capture_output=True, text=True)
     if result.returncode == 1:        
         return result.stderr
@@ -87,15 +91,11 @@ def _execute_tool(tool_call):
     arguments = json.loads(function.arguments)
     print(type(arguments))
     if function_name == "Read":
-        return _read(arguments["file_path"])
+        return _read(arguments)
     elif function_name == "Write":
-        file_path = arguments["file_path"]
-        content = arguments["content"]
-        _write(file_path, content)
-        return content
+        return _write(arguments)
     elif function_name == "Bash":
-        command = arguments["command"].split()
-        return _bash(command)
+        return _bash(arguments)
 
 def agent_loop(client: OpenAI, p):
     messages=[{"role": "user", "content": p}]
