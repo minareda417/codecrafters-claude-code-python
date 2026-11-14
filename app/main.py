@@ -31,9 +31,10 @@ def get_skill_content(file_path: str, arguments: list[str]) -> str:
             line = f.readline()
             if not line:
                 break
-            # content += _replace_placeholders(line, arguments)
-            content += line
+            content += _replace_placeholders(line, arguments)
+            # content += line
         f.close()
+    print(content)
     return content
 
 def agent_loop(client: OpenAI, p):
@@ -45,11 +46,8 @@ def agent_loop(client: OpenAI, p):
             arguments = p[1:]
         else:
             arguments = None
-        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {skill[1:]}: ..."}]
-        if arguments:
-            messages.append({"role": "user", "content": get_skill_content(file_path, arguments), "arguments": " ".join(arguments)})
-        else:
-            messages.append({"role": "user", "content": get_skill_content(file_path, arguments)})
+        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {skill[1:]}: ..."},
+                    {"role": "user", "content": get_skill_content(file_path, arguments)}]
     else:
         messages=[{"role": "user", "content": p}]
 
