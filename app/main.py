@@ -43,7 +43,7 @@ def agent_loop(client: OpenAI, p):
         command = p.split()
         skills = []
         idx = 0
-        while command[idx][0] == '/' and idx < len(command):
+        while idx < len(command) and command[idx][0] == '/' :
             skills.append(command[idx][1:])
             idx += 1
         print(skills)
