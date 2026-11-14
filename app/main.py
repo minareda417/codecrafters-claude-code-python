@@ -79,6 +79,7 @@ def _bash(command: str):
     result = subprocess.run(args=command, capture_output=True)
     if result.stderr is not None:
         return result.stderr
+    print(result.stdout)
     return result.stdout
 
 def _execute_tool(tool_call):
