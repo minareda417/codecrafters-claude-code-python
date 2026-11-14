@@ -21,7 +21,7 @@ def _replace_placeholders(line: str, arguments: list[str]) -> str:
     return line
 
 def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
-    content = f"Skill: {skill} (located at .claude/skills/{skill})\nPaths in the instructions below are relative to that folder.\n\n"
+    content = f"Skill: {skill} (located at .claude/skills/{skill}/)\nPaths in the instructions below are relative to that folder.\n\n"
     with open(file_path, 'r') as f:
         counter = 0
         while counter < 2:
@@ -48,7 +48,7 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = command[idx:]
     else:
         arguments = None
-    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}: ..."}]
+    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}"}]
     for skill in skills:
         file_path = ".claude/skills/"+skill+"/SKILL.md"
         messages.append({"role": "user", "content": _get_skill_content(file_path, arguments, skill)})
