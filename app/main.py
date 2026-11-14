@@ -6,7 +6,7 @@ import subprocess
 
 from openai import OpenAI
 
-from tool_executor import tools, execute_tool
+from .tool_executor import tools, execute_tool
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
@@ -100,7 +100,6 @@ BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v
 
 def agent_loop(client: OpenAI, p):
     messages=[{"role": "user", "content": p}]
-    executor = ToolExecutor()
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
