@@ -23,6 +23,7 @@ def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
 
 def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
     content = ""
+    description = ""
     with open(file_path, 'r') as f:
         counter = 0
         while counter < 2:
@@ -36,8 +37,40 @@ def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
                 break
             content += _replace_placeholders(line, arguments, skill)
         f.close()
-    # print(content)
     return content
+
+def _get_description(file_path: str):
+    description = ""
+    with open(file_path, 'r') as f:
+        for _ in range(2):
+            f.readline()
+        description += f.readline()[13:]
+        f.close()
+    return description
+
+def _get_description_and_content(file_path: str, arguments: str, skill: str):
+    content = ""
+    description = ""
+    with open(file_path, 'r') as f:
+        for _ in range(2):
+            f.readline()
+        description += f.readline()[13:]
+        f.readline()
+        f.readline()
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            content += _replace_placeholders(line, arguments, skill)
+        f.close()
+    return description, content
+
+def _process_skills(skills: list[str], arguments: str) -> dict:
+    skills_dict = {}
+    for skill in skills:
+        file_path = ".claude/skills/"+skill+"SKILL.md"
+        skills_dict[skill]["description"], skills_dict[skill]["content"] = _get_description_and_content(file_path, arguments, skill)
+    return skills_dict
 
 def _get_skills_messages(p: str) -> list[dict]:
     command = p.split()
@@ -50,10 +83,11 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = command[idx:]
     else:
         arguments = None
-    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {" ".join(skills)}\n\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
+    skills_dict = _process_skills(skills, arguments)
+    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n\n".join(f"{skill}: {skills_dict[skill]["description"]}" for skill in skills)}\n\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
+    print(messages)
     for skill in skills:
-        file_path = ".claude/skills/"+skill+"/SKILL.md"
-        messages.append({"role": "user", "content": _get_skill_content(file_path, arguments, skill)})
+        messages.append({"role": "user", "content": skills_dict[skill]["content"]})
     return messages
 
 def agent_loop(client: OpenAI, p: str):
