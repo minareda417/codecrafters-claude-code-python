@@ -98,7 +98,6 @@ def _execute_tool(tool_call):
     elif function_name == "Bash":
         arguments = json.loads(function.arguments)
         command = arguments["command"].split()
-        print(command)
         return _bash(command)
 
 def agent_loop(client: OpenAI, p):
