@@ -95,7 +95,7 @@ def _execute_tool(tool_call):
         return content
     elif function_name == "Bash":
         arguments = json.loads(function.arguments)
-        command = arguments["command"].split()
+        command = [arguments["command"]]
         print(command)
         return _bash(command)
 
