@@ -73,7 +73,7 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
         return _bash(arguments)
 
 def _read(arguments: dict) -> str:
-    with open(arguments["file_path"], 'a+') as f:
+    with open(arguments["file_path"], 'r') as f:
             return f.read()
 
 def _write(arguments: dict) -> str:
