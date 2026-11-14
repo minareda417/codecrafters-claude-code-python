@@ -11,9 +11,30 @@ from .tool_executor import tools, execute_tool
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
+def get_skill_content(file_path: str) -> str:
+    content = ""
+    with open(file_path, 'r') as f:
+        counter = 0
+        while counter < 2:
+            line = f.readline()
+            if line == "---\n":
+                counter += 1
+        f.readline()
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            content += line
+        f.close()
+    return content
+
 def agent_loop(client: OpenAI, p):
-    print(p)
-    messages=[{"role": "user", "content": p}]
+    if p[0] == '/':
+        file_path = ".claude/skills/"+p+"/SKILL.md"
+        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {p[1:]}: ..."},
+                    {"role": "user", "content": get_skill_content(file_path)}]
+    else:
+        messages=[{"role": "user", "content": p}]
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
