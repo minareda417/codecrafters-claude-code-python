@@ -49,12 +49,26 @@ tools = [
 }
 ]
 
-def _execute_tool(tool_call) -> str:
+def _read(file_path: str) -> str:
+    with open(file_path, 'r') as f:
+            return f.read()
+
+def _write(file_path, content):
+    with open(file_path, 'w') as f:
+        return f.write(content)
+
+def _execute_tool(tool_call):
     function = tool_call.function
     function_name = function.name
-    function_arguments = json.loads(function.arguments)
-    with open(function_arguments["file_path"]) as f:
-        return f.read()
+    if function_name == "Read":
+        function_arguments = json.loads(function.arguments)
+        return _read(function_arguments["file_path"])
+    elif function_name == "Write":
+        properties = function.parameters.properties
+        file_path = properties.file_path
+        content = properties.content
+        return _write(file_path, content)
+
 
 def agent_loop(client: OpenAI, p):
     messages=[{"role": "user", "content": p}]
@@ -93,10 +107,6 @@ def main():
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
     agent_loop(client, args.p)
-
-    
-    
-    
 
 
 if __name__ == "__main__":
