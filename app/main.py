@@ -116,8 +116,9 @@ def agent_loop(client: OpenAI, p):
         if tool_calls is None:
             print(message.content)
             break
-        print(type(tool_call))
+        
         for tool_call in tool_calls:
+            print(type(tool_call))
             result = _execute_tool(tool_call)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 
