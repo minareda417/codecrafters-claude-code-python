@@ -12,16 +12,18 @@ from .tool_executor import tools, execute_tool
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
-def _replace_placeholders(line: str, arguments: list[str]) -> str:
+def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
     if not arguments:
         return line
     line = line.replace("$ARGUMENTS", " ".join(arguments))
     line = re.sub(r"\$ARGUMENT\[(\d+)\]", lambda m: str(arguments[int(m.group(1))]), line)
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
+    line = re.sub(r".+/.+", lambda m: f".claude/Skills/{skill}/{m}", line)
     return line
 
 def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
-    content = f"Skill: {skill} (located at .claude/skills/{skill}/)\nPaths in the instructions below are relative to that folder.\n\n"
+    # content = f"Skill: {skill} (located at .claude/skills/{skill}/)\nPaths in the instructions below are relative to that folder.\n\n"
+    content = ""
     with open(file_path, 'r') as f:
         counter = 0
         while counter < 2:
@@ -33,7 +35,7 @@ def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
             line = f.readline()
             if not line:
                 break
-            content += _replace_placeholders(line, arguments)
+            content += _replace_placeholders(line, arguments, skill)
         f.close()
     return content
 
