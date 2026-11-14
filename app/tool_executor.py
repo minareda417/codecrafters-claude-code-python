@@ -93,7 +93,7 @@ def _is_bash_script(file_path: str) -> bool:
 
 def _bash(arguments: dict) -> str:
     command = arguments["command"].split()
-    # print(command)
+    print(command)
     if _is_bash_script(command[0]):
         command.insert(0, "bash")
     result = subprocess.run(args=command, capture_output=True, text=True)
