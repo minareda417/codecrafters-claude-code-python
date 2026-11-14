@@ -55,7 +55,7 @@ def _read(file_path: str) -> str:
 
 def _write(file_path: str, content: str):
     with open(file_path, 'w') as f:
-        return f.write(content)
+        f.write(content)
 
 def _execute_tool(tool_call):
     function = tool_call.function
@@ -68,7 +68,8 @@ def _execute_tool(tool_call):
         arguments = json.loads(function.arguments)
         file_path = arguments["file_path"]
         content = arguments["content"]
-        return _write(file_path, content)
+        _write(file_path, content)
+        return content
 
 
 def agent_loop(client: OpenAI, p):
