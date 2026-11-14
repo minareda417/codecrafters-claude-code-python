@@ -6,98 +6,101 @@ import subprocess
 
 from openai import OpenAI
 
+from tool_executor import tools, ToolExecutor
+
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
-tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "Read",
-            "description": "Read and return the contents of a file",
-            "parameters": {
-            "type": "object",
-            "properties": {
-                "file_path": {
-                "type": "string",
-                "description": "The path to the file to read"
-                }
-            },
-            "required": ["file_path"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "Write",
-            "description": "Write content to a file",
-            "parameters": {
-            "type": "object",
-            "required": ["file_path", "content"],
-            "properties": {
-                "file_path": {
-                "type": "string",
-                "description": "The path of the file to write to"
-                },
-                "content": {
-                "type": "string",
-                "description": "The content to write to the file"
-                }
-            }
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "Bash",
-            "description": "Execute a shell command",
-            "parameters": {
-            "type": "object",
-            "required": ["command"],
-            "properties": {
-                "command": {
-                "type": "string",
-                "description": "The command to execute"
-                }
-            }
-            }
-        }
-    }
-]
+# tools = [
+#     {
+#         "type": "function",
+#         "function": {
+#             "name": "Read",
+#             "description": "Read and return the contents of a file",
+#             "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "file_path": {
+#                 "type": "string",
+#                 "description": "The path to the file to read"
+#                 }
+#             },
+#             "required": ["file_path"]
+#             }
+#         }
+#     },
+#     {
+#         "type": "function",
+#         "function": {
+#             "name": "Write",
+#             "description": "Write content to a file",
+#             "parameters": {
+#             "type": "object",
+#             "required": ["file_path", "content"],
+#             "properties": {
+#                 "file_path": {
+#                 "type": "string",
+#                 "description": "The path of the file to write to"
+#                 },
+#                 "content": {
+#                 "type": "string",
+#                 "description": "The content to write to the file"
+#                 }
+#             }
+#             }
+#         }
+#     },
+#     {
+#         "type": "function",
+#         "function": {
+#             "name": "Bash",
+#             "description": "Execute a shell command",
+#             "parameters": {
+#             "type": "object",
+#             "required": ["command"],
+#             "properties": {
+#                 "command": {
+#                 "type": "string",
+#                 "description": "The command to execute"
+#                 }
+#             }
+#             }
+#         }
+#     }
+# ]
 
-def _read(arguments: dict) -> str:
-    with open(arguments["file_path"], 'r') as f:
-            return f.read()
+# def _read(arguments: dict) -> str:
+#     with open(arguments["file_path"], 'r') as f:
+#             return f.read()
 
-def _write(arguments: dict) -> str:
-    content = arguments["content"]
-    with open(arguments["file_path"], 'w') as f:
-        f.write(content)
-        f.close()
-    return content
+# def _write(arguments: dict) -> str:
+#     content = arguments["content"]
+#     with open(arguments["file_path"], 'w') as f:
+#         f.write(content)
+#         f.close()
+#     return content
 
-def _bash(arguments: dict) -> str:
-    command = arguments["command"].split()
-    result = subprocess.run(args=command, capture_output=True, text=True)
-    if result.returncode == 1:        
-        return result.stderr
-    return result.stdout
+# def _bash(arguments: dict) -> str:
+#     command = arguments["command"].split()
+#     result = subprocess.run(args=command, capture_output=True, text=True)
+#     if result.returncode == 1:        
+#         return result.stderr
+#     return result.stdout
 
-def _execute_tool(tool_call):
-    function = tool_call.function
-    function_name = function.name
-    arguments = json.loads(function.arguments)
-    if function_name == "Read":
-        return _read(arguments)
-    elif function_name == "Write":
-        return _write(arguments)
-    elif function_name == "Bash":
-        return _bash(arguments)
+# def _execute_tool(tool_call):
+#     function = tool_call.function
+#     function_name = function.name
+#     arguments = json.loads(function.arguments)
+#     if function_name == "Read":
+#         return _read(arguments)
+#     elif function_name == "Write":
+#         return _write(arguments)
+#     elif function_name == "Bash":
+#         return _bash(arguments)
 
 def agent_loop(client: OpenAI, p):
     messages=[{"role": "user", "content": p}]
+    executor = ToolExecutor()
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
@@ -116,10 +119,10 @@ def agent_loop(client: OpenAI, p):
         if tool_calls is None:
             print(message.content)
             break
-        
+
         for tool_call in tool_calls:
             print(type(tool_call))
-            result = _execute_tool(tool_call)
+            result = executor.execute(tool_call)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 
 
