@@ -43,8 +43,8 @@ def agent_loop(client: OpenAI, p):
         print(command)
         skill = command[0]
         file_path = ".claude/skills/"+skill+"/SKILL.md"
-        if len(p) > 1:
-            arguments = p[1:]
+        if len(command) > 1:
+            arguments = command[1:]
         else:
             arguments = None
         print(arguments)
