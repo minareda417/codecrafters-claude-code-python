@@ -21,33 +21,6 @@ def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
 
-def _get_skill_content(file_path: str, arguments: list[str], skill: str) -> str:
-    content = ""
-    description = ""
-    with open(file_path, 'r') as f:
-        counter = 0
-        while counter < 2:
-            line = f.readline()
-            if line == "---\n":
-                counter += 1
-        f.readline()
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            content += _replace_placeholders(line, arguments, skill)
-        f.close()
-    return content
-
-def _get_description(file_path: str):
-    description = ""
-    with open(file_path, 'r') as f:
-        for _ in range(2):
-            f.readline()
-        description += f.readline()[13:]
-        f.close()
-    return description
-
 def _get_description_and_content(file_path: str, arguments: str, skill: str):
     content = ""
     description = ""
