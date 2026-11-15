@@ -57,7 +57,7 @@ def _get_skills_messages(p: str) -> list[dict]:
     else:
         arguments = None
     skills_dict = _process_skills(skills, arguments)
-    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n\n".join(f"{skill}: {skills_dict[skill]["description"]}" for skill in skills)}\n\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
+    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill}: {skills_dict[skill]["description"]}" for skill in skills)}\n\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
     print(messages)
     for skill in skills:
         messages.append({"role": "user", "content": skills_dict[skill]["content"]})
