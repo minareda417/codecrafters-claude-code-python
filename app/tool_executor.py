@@ -3,6 +3,7 @@ import json
 import shlex
 
 from .skill import build_skill
+from .main import agent_loop
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
 READ = {
@@ -118,4 +119,6 @@ def _skill(arguments: dict) -> str:
     raw_args = arguments.get("args", "")
     args = shlex.split(raw_args) if raw_args else []
     skill = build_skill(name, args)
+    if skill.fork:
+        print("subagen")
     return skill.content
