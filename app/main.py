@@ -4,46 +4,22 @@ import sys
 import json
 import subprocess
 import re
+from pathlib import Path
 
 from openai import OpenAI
+from skill import skill, build_skill
 
-from .tool_executor import tools, execute_tool
+from .tool_executor import TOOLS, execute_tool
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
-def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
-    line = re.sub(r"`([^`]+/[^`]*)`", lambda m: f"`.claude/skills/{skill}/{m.group(1)}`",line)
-    if not arguments:
-        return line
-    line = line.replace("$ARGUMENTS", " ".join(arguments))
-    line = re.sub(r"\$ARGUMENT\[(\d+)\]", lambda m: str(arguments[int(m.group(1))]), line)
-    line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
-    return line
 
-def _get_description_and_content(file_path: str, arguments: str, skill: str):
-    content = ""
-    description = ""
-    with open(file_path, 'r') as f:
-        for _ in range(2):
-            f.readline()
-        description += f.readline()[13:]
-        f.readline()
-        f.readline()
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            content += _replace_placeholders(line, arguments, skill)
-        f.close()
-    return description, content
-
-def _process_skills(skills: list[str], arguments: str) -> dict:
-    skills_dict = {}
+def _process_skills(skills: list[str], arguments: str) -> list[skill]:
+    SKILLS = []
     for skill in skills:
-        file_path = ".claude/skills/"+skill+"SKILL.md"
-        skills_dict[skill]["description"], skills_dict[skill]["content"] = _get_description_and_content(file_path, arguments, skill)
-    return skills_dict
+        SKILLS.append(build_skill(skill, arguments))
+    return SKILLS
 
 def _get_skills_messages(p: str) -> list[dict]:
     command = p.split()
@@ -56,23 +32,27 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = command[idx:]
     else:
         arguments = None
-    skills_dict = _process_skills(skills, arguments)
-    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill}: {skills_dict[skill]["description"]}" for skill in skills)}\n\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
+    SKILLS = _process_skills(skills, None)
+    messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
     print(messages)
     for skill in skills:
-        messages.append({"role": "user", "content": skills_dict[skill]["content"]})
+        messages.append({"role": "user", "content": skill.content})
     return messages
 
 def agent_loop(client: OpenAI, p: str):
     if p[0] == '/':
         messages = _get_skills_messages(p)
     else:
+        skills_path = Path(".claude/skills")
+        skills = [skill.name for skill in skills_path.iterdir() if skill.is_dir()]
+        SKILLS = _process_skills(skills, p)
+        messages = [{"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
         messages=[{"role": "user", "content": p}]
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
-                                                  tools = tools)
+                                                  tools = TOOLS)
         
         if not response.choices or len(response.choices) == 0:
                 raise RuntimeError("no choices in response")

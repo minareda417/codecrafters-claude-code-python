@@ -2,8 +2,7 @@ import subprocess
 import json
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
-tools = [
-    {
+READ = {
         "type": "function",
         "function": {
             "name": "Read",
@@ -19,8 +18,9 @@ tools = [
             "required": ["file_path"]
             }
         }
-    },
-    {
+    }
+
+WRITE =     {
         "type": "function",
         "function": {
             "name": "Write",
@@ -40,8 +40,9 @@ tools = [
             }
             }
         }
-    },
-    {
+    }
+
+BASH = {
         "type": "function",
         "function": {
             "name": "Bash",
@@ -57,8 +58,9 @@ tools = [
             }
             }
         }
-    },
-    {
+    }
+
+SKILL = {
         "type": "function",
         "function": {
         "name": "Skill",
@@ -73,7 +75,8 @@ tools = [
         }
         }
     }
-]
+
+TOOLS = [READ, WRITE, BASH, SKILL]
 
 
 def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
