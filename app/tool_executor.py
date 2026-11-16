@@ -113,7 +113,6 @@ def _bash(arguments: dict) -> str:
     return result.stdout
 
 def _skill(arguments: dict) -> str:
-    print(arguments)
     name = arguments["name"]
     raw_args = arguments.get("args", "")
     args = shlex.split(raw_args) if raw_args else []
