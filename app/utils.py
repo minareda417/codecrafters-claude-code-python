@@ -223,5 +223,5 @@ def agent_loop(client: OpenAI, p: str, subagent: bool = False):
             break
 
         for tool_call in tool_calls:
-            result = execute_tool(tool_call)
+            result = execute_tool(tool_call, client)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
