@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from openai import OpenAI
-from skill import skill, build_skill
+from .skill import skill, build_skill
 
 from .tool_executor import TOOLS, execute_tool
 
@@ -34,7 +34,6 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = None
     SKILLS = _process_skills(skills, None)
     messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
-    print(messages)
     for skill in skills:
         messages.append({"role": "user", "content": skill.content})
     return messages
@@ -48,6 +47,7 @@ def agent_loop(client: OpenAI, p: str):
         SKILLS = _process_skills(skills, p)
         messages = [{"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
         messages=[{"role": "user", "content": p}]
+        print(messages)
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
