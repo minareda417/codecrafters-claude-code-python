@@ -47,7 +47,7 @@ def agent_loop(client: OpenAI, p: str):
         print(skills)
         SKILLS = _process_skills(skills, p)
         messages = [{"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
-        messages=[{"role": "user", "content": p}]
+        messages.append({"role": "user", "content": p})
         print(messages)
 
     while True:
