@@ -195,17 +195,17 @@ def get_skills_messages(p: str) -> list[dict]:
     return messages
 
 def get_messages(p: str) -> list[dict]:
-    messages = []
     if p[0] == '/':
-        messages.append(get_skills_messages(p))
+        return get_skills_messages(p)
     else:
+        messages = []
         skills_path = Path(".claude/skills")
         if skills_path.exists():
             skills = [skill.name for skill in skills_path.iterdir() if skill.is_dir()]
             SKILLS = process_skills(skills, p)
             messages.append({"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."})
         messages.append({"role": "user", "content": p})
-    return messages
+        return messages
 
 def agent_loop(client: OpenAI, p: str):
     messages = get_messages(p)
