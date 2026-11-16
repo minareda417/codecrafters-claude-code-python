@@ -48,9 +48,8 @@ def agent_loop(client: OpenAI, p: str):
         messages = [{"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."}]
         messages.append({"role": "user", "content": p})
 
-    print(messages)
     while True:
-        print(messages)
+        # print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)

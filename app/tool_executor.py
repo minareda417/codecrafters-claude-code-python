@@ -89,10 +89,12 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall):
         return _write(arguments)
     elif function_name == "Bash":
         return _bash(arguments)
+    elif function_name == "Skill":
+        return _skill(arguments)
 
 def _read(arguments: dict) -> str:
     with open(arguments["file_path"], 'r') as f:
-            return f.read()
+        return f.read()
 
 def _write(arguments: dict) -> str:
     content = arguments["content"]
@@ -106,3 +108,6 @@ def _bash(arguments: dict) -> str:
     if result.returncode != 0:
         return result.stderr
     return result.stdout
+
+def _skill(arguments: dict) -> str:
+    print(arguments)
