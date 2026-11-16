@@ -128,6 +128,7 @@ def _skill(arguments: dict, client: OpenAI) -> str:
         sub_chat = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = subagent_messages,
                                                   tools = TOOLS)
+        print(sub_chat.choices[0].message)
         return sub_chat.choices[0].message
     return skill.content
 
