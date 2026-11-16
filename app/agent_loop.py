@@ -1,5 +1,5 @@
 from pathlib import Path
-import OpenAI
+from openai import OpenAI
 
 from .skill import get_skills_messages, process_skills
 from tool_executor import execute_tool, TOOLS
@@ -19,7 +19,7 @@ def get_messages(p: str) -> list[dict]:
 
 def agent_loop(client: OpenAI, p: str):
     messages = get_messages(p)
-    
+
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
