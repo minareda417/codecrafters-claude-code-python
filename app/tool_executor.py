@@ -115,6 +115,8 @@ def _bash(arguments: dict) -> str:
 def _skill(arguments: dict) -> str:
     name = arguments["name"]
     raw_args = arguments.get("args", "")
+    if raw_args:
+        print(raw_args)
     args = shlex.split(raw_args) if raw_args else []
     skill = build_skill(name, args)
     return skill.content
