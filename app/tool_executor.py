@@ -1,5 +1,6 @@
 import subprocess
 import json
+from .skill import build_skill
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
 READ = {
@@ -112,5 +113,6 @@ def _bash(arguments: dict) -> str:
 def _skill(arguments: dict) -> str:
     print(arguments)
     name = arguments["name"]
-    # args = arguments.get("args", "")
-    print(name, args)
+    args = arguments.get("args", "")
+    skill = build_skill(name, args)
+    return skill.content
