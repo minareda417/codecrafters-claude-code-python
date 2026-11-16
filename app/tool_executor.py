@@ -110,6 +110,7 @@ def _bash(arguments: dict) -> str:
     return result.stdout
 
 def _skill(arguments: dict) -> str:
+    print(arguments)
     name = arguments["name"]
-    args = arguments["args"]
+    # args = arguments.get("args", "")
     print(name, args)
