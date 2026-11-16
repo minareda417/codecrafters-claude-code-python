@@ -121,9 +121,6 @@ def _skill(arguments: dict, client: OpenAI) -> str:
     args = shlex.split(raw_args) if raw_args else []
     skill = build_skill(name, args)
     if skill.fork:
-        # message = f" Skill {skill.name} ran in a separate context and returned: {agent_loop(client, skill.content, True)}"
-        # print(message)
-        # return message
         subagent_messages = [{"role": "user", "content": skill.content}]
         sub_chat = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = subagent_messages,
@@ -211,7 +208,6 @@ def agent_loop(client: OpenAI, p: str):
     messages = get_messages(p)
 
     while True:
-        print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
