@@ -34,7 +34,7 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = None
     SKILLS = _process_skills(skills, None)
     messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
-    for skill in skills:
+    for skill in SKILLS:
         messages.append({"role": "user", "content": skill.content})
     return messages
 
