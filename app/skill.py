@@ -17,7 +17,7 @@ def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
     return line
 
 def build_skill(skill_name: str, arguments: list[str]) -> skill:
-    file_path = f".claude/skills/{skill}/SKILL.md"
+    file_path = f".claude/skills/{skill_name}/SKILL.md"
     description = ""
     content = ""
     with open(file_path, 'r') as f:
