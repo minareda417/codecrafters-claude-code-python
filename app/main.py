@@ -44,6 +44,7 @@ def agent_loop(client: OpenAI, p: str):
     else:
         skills_path = Path(".claude/skills")
         skills = [skill.name for skill in skills_path.iterdir() if skill.is_dir()]
+        print(skills)
         SKILLS = _process_skills(skills, p)
         messages = [{"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
         messages=[{"role": "user", "content": p}]
