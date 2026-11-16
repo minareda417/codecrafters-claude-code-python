@@ -23,7 +23,7 @@ def build_skill(skill_name: str, arguments: list[str]) -> skill:
     with open(file_path, 'r') as f:
         for _ in range(2):
             f.readline()
-        description += f.readline[13:]
+        description += f.readline()[13:]
         for _ in range(2):
             f.readline()
         while True:
