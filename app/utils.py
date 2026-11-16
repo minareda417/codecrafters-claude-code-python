@@ -157,9 +157,8 @@ def build_skill(skill_name: str, arguments: list[str]) -> skill:
             f.readline()
         description += f.readline()[13:]
         l = f.readline()
-        print(f"l = {l}")
         fork = False
-        if l == "context: fork":
+        if l == "context: fork\n":
             fork = True
             for _ in range(2):
                 f.readline()
