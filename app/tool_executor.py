@@ -3,7 +3,6 @@ import json
 import shlex
 
 from .skill import build_skill
-from .agent_loop import agent_loop
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
 
 READ = {
