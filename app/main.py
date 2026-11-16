@@ -32,7 +32,7 @@ def _get_skills_messages(p: str) -> list[dict]:
         arguments = command[idx:]
     else:
         arguments = None
-    SKILLS = _process_skills(skills, None)
+    SKILLS = _process_skills(skills, arguments)
     messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
     for skill in SKILLS:
         messages.append({"role": "user", "content": skill.content})
@@ -49,7 +49,6 @@ def agent_loop(client: OpenAI, p: str):
         messages.append({"role": "user", "content": p})
 
     while True:
-        # print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
