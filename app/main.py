@@ -4,7 +4,7 @@ from pathlib import Path
 
 from openai import OpenAI
 from .skill import get_skills_messages, process_skills
-from .tool_executor import execute_tool
+from .tool_executor import execute_tool, TOOLS
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
