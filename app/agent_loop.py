@@ -2,7 +2,7 @@ from pathlib import Path
 from openai import OpenAI
 
 from .skill import get_skills_messages, process_skills
-from tool_executor import execute_tool, TOOLS
+from .tool_executor import execute_tool, TOOLS
 
 def get_messages(p: str) -> list[dict]:
     messages = []
