@@ -170,6 +170,7 @@ def build_skill(skill_name: str, arguments: list[str]) -> skill:
                 break
             content += _replace_placeholders(line, arguments, skill_name)
         f.close()
+    print(skill_name, description, content, fork)
     return skill(skill_name, description, content, fork)
 
 def process_skills(skills: list[str], arguments: str) -> list[skill]:
