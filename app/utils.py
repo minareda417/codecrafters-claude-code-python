@@ -215,7 +215,7 @@ def agent_loop(client: OpenAI, p: str):
         if not response.choices or len(response.choices) == 0:
                 raise RuntimeError("no choices in response")
         
-        message = response.choices[0].message.content
+        message = response.choices[0].message
         messages.append(message)
         tool_calls = message.tool_calls
 
