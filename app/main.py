@@ -50,6 +50,7 @@ def agent_loop(client: OpenAI, p: str):
 
     print(messages)
     while True:
+        print("In the loop")
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
