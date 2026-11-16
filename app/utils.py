@@ -121,7 +121,9 @@ def _skill(arguments: dict, client: OpenAI) -> str:
     args = shlex.split(raw_args) if raw_args else []
     skill = build_skill(name, args)
     if skill.fork:
-        return f" Skill {skill.name} ran in a separate context and returned: {agent_loop(client, skill.content, True)}"
+        message = f" Skill {skill.name} ran in a separate context and returned: {agent_loop(client, skill.content, True)}"
+        print(message)
+        return message
     return skill.content
 
 @dataclass
