@@ -124,6 +124,7 @@ def _skill(arguments: dict, client: OpenAI) -> str:
         # message = f" Skill {skill.name} ran in a separate context and returned: {agent_loop(client, skill.content, True)}"
         # print(message)
         # return message
+        print("=====Subagent=====")
         subagent_messages = [{"role": "user", "content": skill.content}]
         sub_chat = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = subagent_messages,
