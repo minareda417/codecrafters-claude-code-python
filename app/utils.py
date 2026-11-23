@@ -166,6 +166,7 @@ def _skill(arguments: dict, client: OpenAI) -> str:
     return skill.content
 
 def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
+    print(arguments)
     path = arguments["filePath"]
     PATH = Path(path)
     if not PATH.is_absolute():
