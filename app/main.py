@@ -2,6 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
+from .lsp_client import LSPClient
 from openai import OpenAI
 from .utils import agent_loop
 

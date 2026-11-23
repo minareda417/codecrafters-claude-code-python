@@ -4,6 +4,9 @@ import shlex
 from dataclasses import dataclass
 import re
 from pathlib import Path
+import os
+
+from .lsp_client import LSPClient
 
 from openai import OpenAI
 from openai.types.chat.chat_completion_message_function_tool_call import ChatCompletionMessageFunctionToolCall
@@ -82,10 +85,42 @@ SKILL = {
         }
     }
 
-TOOLS = [READ, WRITE, BASH, SKILL]
+LSP = {
+    "type": "function",
+    "function": {
+        "name": "LSP",
+        "description": "Returns the file, line, and character where a symbol is defined.",
+        "parameters": {
+        "type": "object",
+        "properties": {
+            "operation": {
+            "type": "string",
+            "enum": ["goToDefinition"]
+            },
+            "filePath": {
+            "type": "string",
+            "description": "Absolute path, or a path relative to the agent's current working directory."
+            },
+            "line": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based line number of the symbol."
+            },
+            "character": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based character offset in UTF-16 code units (same as character count for ASCII)."
+            }
+        },
+        "required": ["operation", "filePath", "line", "character"]
+        }
+    }
+    }
+
+TOOLS = [READ, WRITE, BASH, SKILL, LSP]
 
 
-def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenAI):
+def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenAI, LSPClient: LSPClient):
     function = tool_call.function
     function_name = function.name
     arguments = json.loads(function.arguments)
@@ -97,6 +132,8 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
         return _bash(arguments)
     elif function_name == "Skill":
         return _skill(arguments, client)
+    elif function_name == "LSP":
+        return _LSP(arguments, LSPClient)
 
 def _read(arguments: dict) -> str:
     with open(arguments["file_path"], 'r') as f:
@@ -127,6 +164,14 @@ def _skill(arguments: dict, client: OpenAI) -> str:
                                                   tools = TOOLS)
         return f"Skill {skill.name} ran in a separate context and returned: {sub_chat.choices[0].message.content}"
     return skill.content
+
+def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
+    path = arguments["filePath"]
+    PATH = Path(path)
+    if not PATH.is_absolute():
+        path = PATH.resolve()
+    return LSPClient.request(arguments["operation"], {"filePath": path, "line": arguments["line"], "character": arguments["character"]})
+    
 
 @dataclass
 class skill:
@@ -206,6 +251,7 @@ def get_messages(p: str) -> list[dict]:
 
 def agent_loop(client: OpenAI, p: str):
     messages = get_messages(p)
+    lspClient = LSPClient.from_environment()
 
     while True:
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
@@ -224,5 +270,5 @@ def agent_loop(client: OpenAI, p: str):
             break
 
         for tool_call in tool_calls:
-            result = execute_tool(tool_call, client)
+            result = execute_tool(tool_call, client, lspClient)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
