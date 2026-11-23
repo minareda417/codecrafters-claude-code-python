@@ -171,6 +171,7 @@ def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
     PATH = Path(path)
     if not PATH.is_absolute():
         path = PATH.resolve()
+    print(path)
     return LSPClient.request(arguments["operation"], {"filePath": path, "line": arguments["line"], "character": arguments["character"]})
     
 
