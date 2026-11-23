@@ -167,7 +167,7 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 
 def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
     path = arguments["filePath"]
-    arguments["filePath"] = Path(path).resolve() if not Path(path).is_absolute() else path
+    arguments["filePath"] = str(Path(path).resolve()) if not Path(path).is_absolute() else path
     print(arguments)
     return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
     
