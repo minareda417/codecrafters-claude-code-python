@@ -133,7 +133,8 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
     elif function_name == "Skill":
         return _skill(arguments, client)
     elif function_name == "LSP":
-        return _LSP(arguments, LSPClient)
+        return "LSP is not implemented yet"
+        # return _LSP(arguments, LSPClient)
 
 def _read(arguments: dict) -> str:
     with open(arguments["file_path"], 'r') as f:
@@ -168,7 +169,6 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
     path = arguments["filePath"]
     arguments["filePath"] = str(Path(path).resolve()) if not Path(path).is_absolute() else path
-    print(arguments)
     return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
     
 
