@@ -119,6 +119,9 @@ LSP = {
 
 TOOLS = [READ, WRITE, BASH, SKILL, LSP]
 
+def getFileContent(filePath: str)->str:
+    with open(filePath, 'r') as f:
+        return f.read()
 
 def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenAI, LSPClient: LSPClient):
     function = tool_call.function
@@ -133,12 +136,10 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
     elif function_name == "Skill":
         return _skill(arguments, client)
     elif function_name == "LSP":
-        return "LSP is not implemented yet"
-        # return _LSP(arguments, LSPClient)
+        return _LSP(arguments, LSPClient)
 
 def _read(arguments: dict) -> str:
-    with open(arguments["file_path"], 'r') as f:
-        return f.read()
+    return getFileContent(arguments["file_path"])
 
 def _write(arguments: dict) -> str:
     content = arguments["content"]
@@ -167,10 +168,39 @@ def _skill(arguments: dict, client: OpenAI) -> str:
     return skill.content
 
 def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
-    path = arguments["filePath"]
-    arguments["filePath"] = str(Path(path).resolve()) if not Path(path).is_absolute() else path
-    return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
-    
+    operation = arguments["operation"]
+    if operation == "goToDefinition":
+        return goToDefinition(arguments, LSPClient)
+
+EXTENSION_MAP = {
+    ".py": "Python",
+    ".js": "JavaScript",
+    ".ts": "TypeScript",
+    ".java": "Java",
+    ".cpp": "C++",
+    ".c": "C",
+    ".cs": "C#",
+    ".go": "Go",
+    ".rs": "Rust",
+    ".rb": "Ruby",
+    ".php": "PHP",
+    ".html": "HTML",
+    ".css": "CSS",
+    ".sql": "SQL",
+    ".sh": "Shell",
+}
+
+def goToDefinition(arguments: dict, LSPCLient: LSPClient) -> str:
+    filePath = arguments["filePath"]
+    arguments["filePath"] = str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
+    path = Path(arguments["filePath"])
+    uri = path.as_uri()
+    languageId = EXTENSION_MAP.get(path.suffix.lower(), "unknown")
+    version = 1
+    text = getFileContent(arguments["filePath"])
+    notification = LSPClient.notify("textDocument/didOpen", {uri: uri, languageId: languageId, version: version, text: text})
+    print(notification)
+    # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
 
 @dataclass
 class skill:
