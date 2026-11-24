@@ -202,7 +202,8 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     version = 1
     text = getFileContent(arguments["filePath"])
     notification = lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
-    print(notification)
+    # print(notification)
+    
     # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
 
 @dataclass
