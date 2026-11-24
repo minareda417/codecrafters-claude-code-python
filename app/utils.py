@@ -198,7 +198,7 @@ def goToDefinition(arguments: dict, LSPCLient: LSPClient) -> str:
     languageId = EXTENSION_MAP.get(path.suffix.lower(), "unknown")
     version = 1
     text = getFileContent(arguments["filePath"])
-    notification = LSPClient.notify("textDocument/didOpen", {uri: uri, languageId: languageId, version: version, text: text})
+    notification = LSPClient.notify(method="textDocument/didOpen", params={uri: uri, languageId: languageId, version: version, text: text})
     print(notification)
     # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
 
