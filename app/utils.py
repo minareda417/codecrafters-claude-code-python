@@ -171,6 +171,8 @@ def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
+    else:
+        raise NotImplementedError
 
 EXTENSION_MAP = {
     ".py": "Python",
@@ -195,6 +197,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     arguments["filePath"] = str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
     path = Path(arguments["filePath"])
     uri = path.as_uri()
+    print(uri)
     languageId = EXTENSION_MAP.get(path.suffix.lower(), "unknown")
     version = 1
     text = getFileContent(arguments["filePath"])
@@ -283,6 +286,7 @@ def agent_loop(client: OpenAI, p: str):
     lspClient = LSPClient.from_environment()
 
     while True:
+        print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
