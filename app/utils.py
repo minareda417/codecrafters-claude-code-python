@@ -167,10 +167,10 @@ def _skill(arguments: dict, client: OpenAI) -> str:
         return f"Skill {skill.name} ran in a separate context and returned: {sub_chat.choices[0].message.content}"
     return skill.content
 
-def _LSP(arguments: dict, LSPClient: LSPClient) -> str:
+def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
-        return goToDefinition(arguments, LSPClient)
+        return goToDefinition(arguments, lspClient)
 
 EXTENSION_MAP = {
     ".py": "Python",
@@ -190,7 +190,7 @@ EXTENSION_MAP = {
     ".sh": "Shell",
 }
 
-def goToDefinition(arguments: dict, LSPCLient: LSPClient) -> str:
+def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     filePath = arguments["filePath"]
     arguments["filePath"] = str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
     path = Path(arguments["filePath"])
@@ -198,7 +198,7 @@ def goToDefinition(arguments: dict, LSPCLient: LSPClient) -> str:
     languageId = EXTENSION_MAP.get(path.suffix.lower(), "unknown")
     version = 1
     text = getFileContent(arguments["filePath"])
-    notification = LSPClient.notify(method="textDocument/didOpen", params={uri: uri, languageId: languageId, version: version, text: text})
+    notification = lspCLient.notify(method="textDocument/didOpen", params={uri: uri, languageId: languageId, version: version, text: text})
     print(notification)
     # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
 
