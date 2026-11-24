@@ -193,6 +193,7 @@ EXTENSION_MAP = {
 }
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
+    print(arguments)
     filePath = arguments["filePath"]
     arguments["filePath"] = str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
     path = Path(arguments["filePath"])
@@ -203,7 +204,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     text = getFileContent(arguments["filePath"])
     notification = lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
     # print(notification)
-    
+
     # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
 
 @dataclass
