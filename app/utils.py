@@ -207,10 +207,10 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     if not response:
         return "Definition not found"
     response_uri = Path(url2pathname(urlparse(uri).path))
-    # print(response_uri)
+    print(str(response_uri))
     start = response["range"]["start"]
     end = response["range"]["end"]
-    return f"Defined in {response_uri} from {start["line"]+1}:{start["character"]+1} to {end["line"]+1}:{end["character"]+1}"
+    return f"Defined in {str(response_uri)} from {start["line"]+1}:{start["character"]+1} to {end["line"]+1}:{end["character"]+1}"
 
     # print(notification)
 
