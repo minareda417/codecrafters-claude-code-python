@@ -153,9 +153,10 @@ def write(arguments: dict, lspClient: LSPClient) -> str:
     with open(filePath, 'w') as f:
         f.write(content)
         f.close()
-    uri = Path(getAbsolutePAth(filePath)).as_uri()
-    lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
-    VERSIONS[uri] += 1
+    if lspClient is not None:
+        uri = Path(getAbsolutePAth(filePath)).as_uri()
+        lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
+        VERSIONS[uri] += 1
     return content
 
 def bash(arguments: dict) -> str:
