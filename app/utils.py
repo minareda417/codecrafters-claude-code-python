@@ -139,7 +139,7 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
     elif function_name == "Bash":
         return bash(arguments)
     elif function_name == "Skill":
-        return skill(arguments, client)
+        return Skill(arguments, client)
     elif function_name == "LSP":
         return LSP(arguments, LSPClient)
 
@@ -159,7 +159,7 @@ def bash(arguments: dict) -> str:
         return result.stderr
     return result.stdout
 
-def skill(arguments: dict, client: OpenAI) -> str:
+def Skill(arguments: dict, client: OpenAI) -> str:
     name = arguments["name"]
     raw_args = arguments.get("args", "")
     args = shlex.split(raw_args) if raw_args else []
@@ -240,7 +240,7 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     
 
 @dataclass
-class skill:
+class Skill:
     name: str
     description: str
     content: str
@@ -255,7 +255,7 @@ def replacePlaceholders(line: str, arguments: list[str], skill: str) -> str:
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
 
-def buildSkill(skill_name: str, arguments: list[str]) -> skill:
+def buildSkill(skill_name: str, arguments: list[str]) -> Skill:
     filePath = f".claude/skills/{skill_name}/SKILL.md"
     description = ""
     content = ""
@@ -277,9 +277,9 @@ def buildSkill(skill_name: str, arguments: list[str]) -> skill:
                 break
             content += replacePlaceholders(line, arguments, skill_name)
         f.close()
-    return skill(skill_name, description, content, fork)
+    return Skill(skill_name, description, content, fork)
 
-def processSkills(skills: list[str], arguments: str) -> list[skill]:
+def processSkills(skills: list[str], arguments: str) -> list[Skill]:
     SKILLS = []
     for skill in skills:
         SKILLS.append(buildSkill(skill, arguments))
