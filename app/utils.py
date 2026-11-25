@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import re
 from pathlib import Path
 import os
+from urllib.parse import urlparse
+from urllib.request import url2pathname
 
 from .lsp_client import LSPClient
 
@@ -169,40 +171,41 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 
 def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
+    if operation == "didOpen":
+        return didOpen(dict, lspClient)
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
     else:
         raise NotImplementedError
 
-EXTENSION_MAP = {
-    ".py": "Python",
-    ".js": "JavaScript",
-    ".ts": "TypeScript",
-    ".java": "Java",
-    ".cpp": "C++",
-    ".c": "C",
-    ".cs": "C#",
-    ".go": "Go",
-    ".rs": "Rust",
-    ".rb": "Ruby",
-    ".php": "PHP",
-    ".html": "HTML",
-    ".css": "CSS",
-    ".sql": "SQL",
-    ".sh": "Shell",
-}
+def getAbsolutePAth(filePath: str) -> str:
+    return str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
 
-def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
-    print(arguments)
-    filePath = arguments["filePath"]
-    arguments["filePath"] = str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
+def didOpen(arguments:dict, lspClient: LSPClient) -> str:
+    arguments["filePath"] = getAbsolutePAth(arguments["filePath"])
     path = Path(arguments["filePath"])
     uri = path.as_uri()
     print(uri)
-    languageId = EXTENSION_MAP.get(path.suffix.lower(), "unknown")
+    languageId = "python"
     version = 1
     text = getFileContent(arguments["filePath"])
-    notification = lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
+    lspClient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
+
+def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
+    didOpen()
+    print(arguments)
+    path = Path(arguments["filePath"])
+    text = getFileContent(arguments["filePath"])
+    uri = path.as_uri()
+    line = arguments["line"]-1
+    character = arguments["character"]-1
+    lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
+    response = lspCLient.request("textDocument/definition", {"textDocument": uri, "position": {"line": line, "Character": character}})
+    response_uri = Path(url2pathname(urlparse(uri).path))
+    start = response["range"]["start"]
+    end = response["range"]["end"]
+    return f"Defined in {response_uri}:{start["line"+1]}:{end["line"]+1}"
+
     # print(notification)
 
     # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
