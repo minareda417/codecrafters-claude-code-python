@@ -210,7 +210,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     # print(response_uri)
     start = response["range"]["start"]
     end = response["range"]["end"]
-    return f"Defined in {response_uri} from {start["line"+1]}:{start["character"]+1} to {end["line"]+1}:{end[character]+1}"
+    return f"Defined in {response_uri} from {start["line"+1]}:{start["character"]+1} to {end["line"]+1}:{end["character"]+1}"
 
     # print(notification)
 
