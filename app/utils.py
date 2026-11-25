@@ -174,7 +174,6 @@ def skill(arguments: dict, client: OpenAI) -> str:
 
 def LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
-    print(operation)
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
     if operation == "findReferences":
@@ -221,11 +220,11 @@ def getReferencesDict(references) -> dict:
     return references_dict
 
 def formatReferences(references_dict: defaultdict, n_ref: int) -> str:
-    ans = f"Found {n_ref} across {len(references_dict.keys())} files:\n\n"
-    for fileName, locations in references_dict.items():
-        ans += f"{fileName}:\n"
-        for location in locations:
-            ans += f"\tLine {locations[0]}:{location[1]}\n"
+    ans = f"Found {n_ref} references across {len(references_dict.keys())} files:\n\n"
+    for uri, locations in references_dict.items():
+        ans += f"{uriToFileName(uri)}:\n"
+        for i in range(len(locations)):
+            ans += f"\tLine {locations[i][0]}:{locations[i][1]}\n"
         ans += "\n"
     return ans 
 
