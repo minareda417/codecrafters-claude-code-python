@@ -206,6 +206,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     line = arguments["line"]-1
     character = arguments["character"]-1
     definition = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
+    print(definition)
     if not definition:
         return "Definition not found"
     response_uri = uriToFileName(definition["uri"]) 
