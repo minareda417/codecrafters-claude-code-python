@@ -152,7 +152,7 @@ def write(arguments: dict, lspClient: LSPClient) -> str:
     with open(arguments["file_path"], 'w') as f:
         f.write(content)
         f.close()
-    uri = getUri(arguments["file_path"])
+    uri = getUri(arguments["file_path"], lspClient)
     lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
     VERSIONS[uri] += 1
     return content
