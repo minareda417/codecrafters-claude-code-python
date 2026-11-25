@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 from urllib.parse import urlparse
 from urllib.request import url2pathname
+from collections import defaultdict
 
 from .lsp_client import LSPClient
 
@@ -132,33 +133,33 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
     function_name = function.name
     arguments = json.loads(function.arguments)
     if function_name == "Read":
-        return _read(arguments)
+        return read(arguments)
     elif function_name == "Write":
-        return _write(arguments)
+        return write(arguments)
     elif function_name == "Bash":
-        return _bash(arguments)
+        return bash(arguments)
     elif function_name == "Skill":
-        return _skill(arguments, client)
+        return skill(arguments, client)
     elif function_name == "LSP":
-        return _LSP(arguments, LSPClient)
+        return LSP(arguments, LSPClient)
 
-def _read(arguments: dict) -> str:
+def read(arguments: dict) -> str:
     return getFileContent(arguments["file_path"])
 
-def _write(arguments: dict) -> str:
+def write(arguments: dict) -> str:
     content = arguments["content"]
     with open(arguments["file_path"], 'w') as f:
         f.write(content)
         f.close()
     return content
 
-def _bash(arguments: dict) -> str:
+def bash(arguments: dict) -> str:
     result = subprocess.run(args=arguments["command"], shell= True, capture_output=True, text=True)
     if result.returncode != 0:
         return result.stderr
     return result.stdout
 
-def _skill(arguments: dict, client: OpenAI) -> str:
+def skill(arguments: dict, client: OpenAI) -> str:
     name = arguments["name"]
     raw_args = arguments.get("args", "")
     args = shlex.split(raw_args) if raw_args else []
@@ -171,13 +172,12 @@ def _skill(arguments: dict, client: OpenAI) -> str:
         return f"Skill {skill.name} ran in a separate context and returned: {sub_chat.choices[0].message.content}"
     return skill.content
 
-def _LSP(arguments: dict, lspClient: LSPClient) -> str:
+def LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
-    # elif operation == "findReferences ":
-    #     print("References")
-    #     return findReferences(arguments, lspClient)
+    if operation == "findReferences ":
+        return findReferences(arguments, lspClient)
     else:
         raise NotImplementedError
 
@@ -212,17 +212,23 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}\n\n" + findReferences(arguments, lspCLient)
 
 def getReferencesDict(references) -> dict:
-    references_dict = {}
+    references_dict = defaultdict(list)
     for reference in references:
         uri = reference["uri"]
         ref_path = uriToFileName(reference["uri"])
         start_line = reference["range"]["start"]["line"]+1
         start_character = reference["range"]["start"]["character"]+1
-        if references_dict[ref_path]:
-            references_dict[ref_path].append((start_line, start_character))
-        else:
-            references_dict[ref_path] = [(start_line, start_character)]
+        references_dict[ref_path].append((start_line, start_character))
     return references_dict
+
+def formatReferences(references_dict: defaultdict, n_ref: int)
+    ans = f"Found {n_ref} across {len(references_dict.keys)} files:\n\n"
+    for fileName, locations in references_dict:
+        ans += f"{fileName}:\n"
+        for location in locations:
+            ans += f"\tLine {locations[0]}:{location[1]}\n"
+        ans += "\n"
+    return ans 
 
 def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     uri = getUri(arguments["filePath"], lspCLient)
@@ -233,13 +239,8 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
         return "Refrences not found"
     references_dict = getReferencesDict(references)
     print(references_dict)
-    ans = f"Found {len(references)} across {len(references_dict.keys)} files:\n\n"
-    for fileName, locations in references:
-        ans += f"{fileName}:\n"
-        for location in locations:
-            ans += f"\tLine {locations[0]}:{location[1]}\n"
-        ans += "\n"
-    return ans 
+    return formatReferences(references_dict, len(references))
+    
 
 @dataclass
 class skill:
