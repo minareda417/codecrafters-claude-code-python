@@ -153,9 +153,8 @@ def write(arguments: dict, lspClient: LSPClient) -> str:
         f.write(content)
         f.close()
     uri = getUri(arguments["file_path"], lspClient)
-    if lspClient:
-        lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
-        VERSIONS[uri] += 1
+    lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
+    VERSIONS[uri] += 1
     return content
 
 def bash(arguments: dict) -> str:
@@ -190,8 +189,9 @@ def getAbsolutePAth(filePath: str) -> str:
 
 def didOpen(filePath: str, uri: str, lspClient: LSPClient):
     text = getFileContent(getAbsolutePAth(filePath))
-    lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
-    VERSIONS[uri] = 1
+    if uri not in URI:
+        lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
+        VERSIONS[uri] = 1
 
 def uriToFileName(uri: str) -> str:
     return str(Path(url2pathname(urlparse(uri).path))).split('/')[-1]
