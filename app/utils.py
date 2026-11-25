@@ -163,7 +163,7 @@ def skill(arguments: dict, client: OpenAI) -> str:
     name = arguments["name"]
     raw_args = arguments.get("args", "")
     args = shlex.split(raw_args) if raw_args else []
-    skill = build_skill(name, args)
+    skill = buildSkill(name, args)
     if skill.fork:
         subagent_messages = [{"role": "user", "content": skill.content}]
         sub_chat = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
@@ -176,7 +176,7 @@ def LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
-    if operation == "findReferences ":
+    if operation == "findReferences":
         return findReferences(arguments, lspClient)
     else:
         raise NotImplementedError
@@ -247,7 +247,7 @@ class skill:
     content: str
     fork: bool
 
-def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
+def replacePlaceholders(line: str, arguments: list[str], skill: str) -> str:
     line = re.sub(r"`([^`]+/[^`]*)`", lambda m: f"`.claude/skills/{skill}/{m.group(1)}`",line)
     if not arguments:
         return line
@@ -256,11 +256,11 @@ def _replace_placeholders(line: str, arguments: list[str], skill: str) -> str:
     line = re.sub(r"\$(\d+)", lambda m: str(arguments[int(m.group(1))]), line)
     return line
 
-def build_skill(skill_name: str, arguments: list[str]) -> skill:
-    file_path = f".claude/skills/{skill_name}/SKILL.md"
+def buildSkill(skill_name: str, arguments: list[str]) -> skill:
+    filePath = f".claude/skills/{skill_name}/SKILL.md"
     description = ""
     content = ""
-    with open(file_path, 'r') as f:
+    with open(filePath, 'r') as f:
         for _ in range(2):
             f.readline()
         description += f.readline()[13:]
@@ -276,17 +276,17 @@ def build_skill(skill_name: str, arguments: list[str]) -> skill:
             line = f.readline()
             if not line:
                 break
-            content += _replace_placeholders(line, arguments, skill_name)
+            content += replacePlaceholders(line, arguments, skill_name)
         f.close()
     return skill(skill_name, description, content, fork)
 
-def process_skills(skills: list[str], arguments: str) -> list[skill]:
+def processSkills(skills: list[str], arguments: str) -> list[skill]:
     SKILLS = []
     for skill in skills:
-        SKILLS.append(build_skill(skill, arguments))
+        SKILLS.append(buildSkill(skill, arguments))
     return SKILLS
 
-def get_skills_messages(p: str) -> list[dict]:
+def getSkillsMessages(p: str) -> list[dict]:
     command = p.split()
     skills = []
     idx = 0
@@ -297,27 +297,27 @@ def get_skills_messages(p: str) -> list[dict]:
         arguments = command[idx:]
     else:
         arguments = []
-    SKILLS = process_skills(skills, arguments)
+    SKILLS = processSkills(skills, arguments)
     messages = [{"role": "system", "content": f"You have access to the following skills:\n\n- {"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\n"}]
     for skill in SKILLS:
         messages.append({"role": "user", "content": skill.content})
     return messages
 
-def get_messages(p: str) -> list[dict]:
+def getMessages(p: str) -> list[dict]:
     if p[0] == '/':
-        return get_skills_messages(p)
+        return getSkillsMessages(p)
     else:
         messages = []
-        skills_path = Path(".claude/skills")
-        if skills_path.exists():
-            skills = [skill.name for skill in skills_path.iterdir() if skill.is_dir()]
-            SKILLS = process_skills(skills, p)
+        skillsPath = Path(".claude/skills")
+        if skillsPath.exists():
+            skills = [skill.name for skill in skillsPath.iterdir() if skill.is_dir()]
+            SKILLS = processSkills(skills, p)
             messages.append({"role": "system", "content": f"You have access to the following skills:\n\n{"\n".join(f"{skill.name}: {skill.description}" for skill in SKILLS)}\nIf a skill matches the user's request, call the Skill tool with its name and follow the instructions it returns."})
         messages.append({"role": "user", "content": p})
         return messages
 
-def agent_loop(client: OpenAI, p: str):
-    messages = get_messages(p)
+def agentLoop(client: OpenAI, p: str):
+    messages = getMessages(p)
     lspClient = LSPClient.from_environment()
 
     while True:

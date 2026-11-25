@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .lsp_client import LSPClient
 from openai import OpenAI
-from .utils import agent_loop
+from .utils import agentLoop
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
@@ -20,7 +20,7 @@ def main():
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-    agent_loop(client, args.p)
+    agentLoop(client, args.p)
 
 
 if __name__ == "__main__":
