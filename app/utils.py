@@ -189,16 +189,17 @@ def getAbsolutePAth(filePath: str) -> str:
 
 def didOpen(filePath: str, uri: str, lspClient: LSPClient):
     text = getFileContent(getAbsolutePAth(filePath))
-    if uri not in URI:
-        lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
-        VERSIONS[uri] = 1
+    lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
+    VERSIONS[uri] = 1
 
 def uriToFileName(uri: str) -> str:
     return str(Path(url2pathname(urlparse(uri).path))).split('/')[-1]
 
 def getUri(filePath: str, lspClient: LSPClient) -> str:
     uri = Path(getAbsolutePAth(filePath)).as_uri()
-    if uri not in URI:
+    if lspClient is None:
+        print("lspClient is None")
+    elif uri not in URI:
         didOpen(filePath, uri, lspClient)
         URI.add(uri)
     return uri
