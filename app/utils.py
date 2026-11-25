@@ -206,9 +206,9 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     response = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
     if not response:
         return "Definition not found"
-    print(response)
-    response_uri = str(Path(url2pathname(urlparse(uri).path))).split('/')[-1]
-    print(str(response_uri))
+    # print(response)
+    response_uri = str(Path(url2pathname(urlparse(response["uri"]).path))).split('/')[-1]
+    # print(str(response_uri))
     start = response["range"]["start"]
     end = response["range"]["end"]
     return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}"
