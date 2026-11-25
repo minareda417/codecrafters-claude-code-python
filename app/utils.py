@@ -228,6 +228,7 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     if not references:
         return "Refrences not found"
     references_dict = getReferencesDict(references)
+    print(references_dict)
     ans = f"Found {len(references)} across {len(references_dict.keys)} files:\n\n"
     for fileName, locations in references:
         ans += f"{fileName}:\n"
