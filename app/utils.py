@@ -174,8 +174,10 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
+        print("Definition")
         return goToDefinition(arguments, lspClient)
     elif operation == "findReferences ":
+        print("References")
         return findReferences(arguments, lspClient)
     else:
         raise NotImplementedError
@@ -223,7 +225,6 @@ def getReferencesDict(references) -> dict:
     return references_dict
 
 def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
-    print("Hello")
     uri = getUri(arguments["filePath"], lspCLient)
     line = arguments["line"]-1
     character = arguments["character"]-1
