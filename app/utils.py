@@ -201,6 +201,7 @@ def getUri(filePath: str, lspClient: LSPClient) -> str:
     return uri
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
+    print(arguments)
     uri = getUri(arguments["filePath"], lspCLient)
     line = arguments["line"]-1
     character = arguments["character"]-1
