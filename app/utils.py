@@ -171,8 +171,8 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 
 def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
-    # if operation == "didOpen":
-    #     return didOpen(dict, lspClient)
+    if operation == "didOpen":
+        return didOpen(dict, lspClient)
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
     else:
@@ -194,10 +194,11 @@ def didOpen(arguments:dict, lspClient: LSPClient) -> str:
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     # print(arguments)
     path = Path(getAbsolutePAth(arguments["filePath"]))
-    text = getFileContent(arguments["filePath"])
+    text = getFileContent(getAbsolutePAth(arguments["filePath"]))
     uri = path.as_uri()
     line = arguments["line"]-1
     character = arguments["character"]-1
+    print(uri, text)
     lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
     response = lspCLient.request(method="textDocument/definition", params={"textDocument": uri, "position": {"line": line, "Character": character}})
     response_uri = Path(url2pathname(urlparse(uri).path))
