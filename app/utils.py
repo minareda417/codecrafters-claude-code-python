@@ -174,11 +174,10 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     if operation == "goToDefinition":
-        print("Definition")
         return goToDefinition(arguments, lspClient)
-    elif operation == "findReferences ":
-        print("References")
-        return findReferences(arguments, lspClient)
+    # elif operation == "findReferences ":
+    #     print("References")
+    #     return findReferences(arguments, lspClient)
     else:
         raise NotImplementedError
 
@@ -201,7 +200,6 @@ def getUri(filePath: str, lspClient: LSPClient) -> str:
     return uri
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
-    print(arguments)
     uri = getUri(arguments["filePath"], lspCLient)
     line = arguments["line"]-1
     character = arguments["character"]-1
@@ -211,7 +209,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
         return "Definition not found"
     response_uri = uriToFileName(definition["uri"]) 
     start = definition["range"]["start"]
-    return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}"
+    return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}\n\n" + findReferences(arguments, lspCLient)
 
 def getReferencesDict(references) -> dict:
     references_dict = {}
@@ -242,9 +240,6 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
             ans += f"\tLine {locations[0]}:{location[1]}\n"
         ans += "\n"
     return ans 
-
-
-
 
 @dataclass
 class skill:
