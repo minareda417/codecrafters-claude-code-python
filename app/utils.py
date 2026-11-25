@@ -121,7 +121,7 @@ LSP = {
     }
 
 URI = set()
-VERSIONS = defaultdict(1)
+VERSIONS = defaultdict(int)
 
 TOOLS = [READ, WRITE, BASH, SKILL, LSP]
 
