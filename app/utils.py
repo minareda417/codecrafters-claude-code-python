@@ -159,6 +159,7 @@ def write(arguments: dict, lspClient: LSPClient) -> str:
             lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": VERSIONS[uri]+1}, "contentChanges": [{"text": content}]})
         else:
             lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": content}})
+            URI.add(uri)
         VERSIONS[uri] += 1
     return content
 
