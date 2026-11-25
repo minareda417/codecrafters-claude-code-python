@@ -221,6 +221,7 @@ def getReferencesDict(references) -> dict:
     return references_dict
 
 def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
+    print("Hello")
     uri = getUri(arguments["filePath"], lspCLient)
     line = arguments["line"]-1
     character = arguments["character"]-1
