@@ -151,7 +151,7 @@ def write(arguments: dict, lspClient: LSPClient) -> str:
     with open(arguments["file_path"], 'w') as f:
         f.write(content)
         f.close()
-    uri = getUri*arguments["file_path"]
+    uri = getUri(arguments["file_path"], lspClient)
     lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": 2}, "contentChanges": [{"text": content}]})
     return content
 
@@ -195,9 +195,8 @@ def uriToFileName(uri: str) -> str:
 
 def getUri(filePath: str, lspClient: LSPClient) -> str:
     uri = Path(getAbsolutePAth(filePath)).as_uri()
-    if uri not in URI:
-        didOpen(filePath, uri, lspClient)
-        URI.add(uri)
+    didOpen(filePath, uri, lspClient)
+    URI.add(uri)
     return uri
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
