@@ -176,10 +176,8 @@ def LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
     print(operation)
     if operation == "goToDefinition":
-        print("goToDefinition")
         return goToDefinition(arguments, lspClient)
     if operation == "findReferences":
-        print("findReferences")
         return findReferences(arguments, lspClient)
     raise NotImplementedError
 
@@ -223,7 +221,7 @@ def getReferencesDict(references) -> dict:
     return references_dict
 
 def formatReferences(references_dict: defaultdict, n_ref: int) -> str:
-    ans = f"Found {n_ref} across {len(references_dict.keys)} files:\n\n"
+    ans = f"Found {n_ref} across {len(references_dict.keys())} files:\n\n"
     for fileName, locations in references_dict:
         ans += f"{fileName}:\n"
         for location in locations:
