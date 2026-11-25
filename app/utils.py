@@ -222,7 +222,7 @@ def getReferencesDict(references) -> dict:
 
 def formatReferences(references_dict: defaultdict, n_ref: int) -> str:
     ans = f"Found {n_ref} across {len(references_dict.keys())} files:\n\n"
-    for fileName, locations in references_dict:
+    for fileName, locations in references_dict.items():
         ans += f"{fileName}:\n"
         for location in locations:
             ans += f"\tLine {locations[0]}:{location[1]}\n"
