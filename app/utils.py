@@ -192,7 +192,6 @@ def didOpen(arguments:dict, lspClient: LSPClient) -> str:
     lspClient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
-    didOpen()
     print(arguments)
     path = Path(arguments["filePath"])
     text = getFileContent(arguments["filePath"])
@@ -200,7 +199,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     line = arguments["line"]-1
     character = arguments["character"]-1
     lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
-    response = lspCLient.request("textDocument/definition", {"textDocument": uri, "position": {"line": line, "Character": character}})
+    response = lspCLient.request(method="textDocument/definition", params={"textDocument": uri, "position": {"line": line, "Character": character}})
     response_uri = Path(url2pathname(urlparse(uri).path))
     start = response["range"]["start"]
     end = response["range"]["end"]
