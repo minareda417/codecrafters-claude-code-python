@@ -193,7 +193,7 @@ def didOpen(arguments:dict, lspClient: LSPClient) -> str:
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     print(arguments)
-    path = Path(arguments["filePath"])
+    path = Path(getAbsolutePAth(arguments["filePath"]))
     text = getFileContent(arguments["filePath"])
     uri = path.as_uri()
     line = arguments["line"]-1
