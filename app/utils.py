@@ -204,12 +204,11 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     line = arguments["line"]-1
     character = arguments["character"]-1
     definition = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
-    print(definition)
     if not definition:
         return "Definition not found"
     response_uri = uriToFileName(definition["uri"]) 
     start = definition["range"]["start"]
-    return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}\n\n" + findReferences(arguments, lspCLient)
+    return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}\n\n"
 
 def getReferencesDict(references) -> dict:
     references_dict = defaultdict(list)
@@ -238,7 +237,6 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     if not references:
         return "Refrences not found"
     references_dict = getReferencesDict(references)
-    print(references_dict)
     return formatReferences(references_dict, len(references))
     
 
@@ -323,7 +321,6 @@ def agent_loop(client: OpenAI, p: str):
     lspClient = LSPClient.from_environment()
 
     while True:
-        # print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
