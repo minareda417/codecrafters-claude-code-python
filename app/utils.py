@@ -195,6 +195,7 @@ def getUri(filePath: str, lspClient: LSPClient) -> str:
     uri = Path(getAbsolutePAth(filePath)).as_uri()
     if uri not in URI:
         didOpen(filePath, uri, lspClient)
+        URI.add(uri)
     return uri
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
@@ -211,6 +212,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
 def getReferencesDict(references) -> dict:
     references_dict = {}
     for reference in references:
+        uri = reference["uri"]
         ref_path = uriToFileName(reference["uri"])
         start_line = reference["range"]["start"]["line"]+1
         start_character = reference["range"]["start"]["character"]+1
