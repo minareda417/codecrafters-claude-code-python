@@ -174,12 +174,14 @@ def skill(arguments: dict, client: OpenAI) -> str:
 
 def LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
+    print(operation)
     if operation == "goToDefinition":
+        print("goToDefinition")
         return goToDefinition(arguments, lspClient)
     if operation == "findReferences":
+        print("findReferences")
         return findReferences(arguments, lspClient)
-    else:
-        raise NotImplementedError
+    raise NotImplementedError
 
 def getAbsolutePAth(filePath: str) -> str:
     return str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
