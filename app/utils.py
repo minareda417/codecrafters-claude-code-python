@@ -201,7 +201,7 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     line = arguments["line"]-1
     character = arguments["character"]-1
     if uri not in URI:
-        lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
+        lspCLient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
         URI.add(uri)
     response = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
     if not response:
