@@ -135,7 +135,7 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
     if function_name == "Read":
         return read(arguments)
     elif function_name == "Write":
-        return write(arguments)
+        return write(arguments, LSPClient)
     elif function_name == "Bash":
         return bash(arguments)
     elif function_name == "Skill":
@@ -146,11 +146,13 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
 def read(arguments: dict) -> str:
     return getFileContent(arguments["file_path"])
 
-def write(arguments: dict) -> str:
+def write(arguments: dict, lspClient: LSPClient) -> str:
     content = arguments["content"]
     with open(arguments["file_path"], 'w') as f:
         f.write(content)
         f.close()
+    uri = getUri*arguments["file_path"]
+    lspClient.notify(method="textDocument/didChange", params={"textDocument":{"uri": uri, "languageId": "python", "version": 2}, "contentChanges": [{"text": content}]})
     return content
 
 def bash(arguments: dict) -> str:
