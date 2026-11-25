@@ -119,6 +119,8 @@ LSP = {
     }
     }
 
+URI = set()
+
 TOOLS = [READ, WRITE, BASH, SKILL, LSP]
 
 def getFileContent(filePath: str)->str:
@@ -199,7 +201,9 @@ def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
     line = arguments["line"]-1
     character = arguments["character"]-1
     print(uri, text)
-    lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
+    if uri not in URI:
+        lspCLient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": "python", "version": 1, "text": text})
+        URI.add(uri)
     response = lspCLient.request(method="textDocument/definition", params={"textDocument": uri, "position": {"line": line, "Character": character}})
     response_uri = Path(url2pathname(urlparse(uri).path))
     start = response["range"]["start"]
