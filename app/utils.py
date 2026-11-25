@@ -173,48 +173,71 @@ def _skill(arguments: dict, client: OpenAI) -> str:
 
 def _LSP(arguments: dict, lspClient: LSPClient) -> str:
     operation = arguments["operation"]
-    if operation == "didOpen":
-        return didOpen(dict, lspClient)
     if operation == "goToDefinition":
         return goToDefinition(arguments, lspClient)
+    elif operation == "findReferences ":
+        return findReferences(arguments, lspClient)
     else:
         raise NotImplementedError
 
 def getAbsolutePAth(filePath: str) -> str:
     return str(Path(filePath).resolve()) if not Path(filePath).is_absolute() else filePath
 
-def didOpen(arguments:dict, lspClient: LSPClient) -> str:
-    print('&'*100)
-    arguments["filePath"] = getAbsolutePAth(arguments["filePath"])
-    path = Path(arguments["filePath"])
-    uri = path.as_uri()
-    # print(uri)
-    languageId = "python"
-    version = 1
-    text = getFileContent(arguments["filePath"])
-    lspClient.notify(method="textDocument/didOpen", params={"uri": uri, "languageId": languageId, "version": version, "text": text})
+def didOpen(filePath: str, uri: str, lspClient: LSPClient):
+    text = getFileContent(getAbsolutePAth(filePath))
+    lspClient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
+    URI.add(uri)
+
+def uriToFileName(uri: str) -> str:
+    return str(Path(url2pathname(urlparse(uri).path))).split('/')[-1]
+
+def getUri(filePath: str, lspClient: LSPClient) -> str:
+    uri = Path(getAbsolutePAth(filePath)).as_uri()
+    if uri not in URI:
+        didOpen(filePath, uri, lspClient)
+    return uri
 
 def goToDefinition(arguments: dict, lspCLient: LSPClient) -> str:
-    # print(arguments)
-    path = Path(getAbsolutePAth(arguments["filePath"]))
-    text = getFileContent(getAbsolutePAth(arguments["filePath"]))
-    uri = path.as_uri()
+    uri = getUri(arguments["filePath"], lspCLient)
     line = arguments["line"]-1
     character = arguments["character"]-1
-    if uri not in URI:
-        lspCLient.notify(method="textDocument/didOpen", params={"textDocument":{"uri": uri, "languageId": "python", "version": 1, "text": text}})
-        URI.add(uri)
-    response = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
-    if not response:
+    definition = lspCLient.request(method="textDocument/definition", params={"textDocument": {"uri": uri}, "position": {"line": line, "Character": character}})
+    if not definition:
         return "Definition not found"
-    response_uri = str(Path(url2pathname(urlparse(response["uri"]).path))).split('/')[-1]
-    start = response["range"]["start"]
-    end = response["range"]["end"]
+    response_uri = uriToFileName(definition["uri"]) 
+    start = definition["range"]["start"]
     return f"Defined in {str(response_uri)} at {start["line"]+1}:{start["character"]+1}"
 
-    # print(notification)
+def getReferencesDict(references) -> dict:
+    references_dict = {}
+    for reference in references:
+        ref_path = uriToFileName(reference["uri"])
+        start_line = reference["range"]["start"]["line"]+1
+        start_character = reference["range"]["start"]["character"]+1
+        if references_dict[ref_path]:
+            references_dict[ref_path].append((start_line, start_character))
+        else:
+            references_dict[ref_path] = [(start_line, start_character)]
+    return references_dict
 
-    # return LSPClient.request(arguments["operation"], {"filePath": arguments["filePath"], "line": arguments["line"], "character": arguments["character"]})
+def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
+    uri = getUri(arguments["filePath"], lspCLient)
+    line = arguments["line"]-1
+    character = arguments["character"]-1
+    references = lspCLient.request("textDocument/references", {"textDocument": {"uri": uri}, "position": {"line": line, "character": character}, "context": {"includeDeclaration": True}})
+    if not references:
+        return "Refrences not found"
+    references_dict = getReferencesDict(references)
+    ans = f"Found {len(references)} across {len(references_dict.keys)} files:\n\n"
+    for fileName, locations in references:
+        ans += f"{fileName}:\n"
+        for location in locations:
+            ans += f"\tLine {locations[0]}:{location[1]}\n"
+        ans += "\n"
+    return ans 
+
+
+
 
 @dataclass
 class skill:
@@ -303,7 +326,7 @@ def agent_loop(client: OpenAI, p: str):
                                                   tools = TOOLS)
         
         if not response.choices or len(response.choices) == 0:
-                raise RuntimeError("no choices in response")
+            raise RuntimeError("no choices in response")
         
         message = response.choices[0].message
         messages.append(message)
