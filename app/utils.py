@@ -221,7 +221,7 @@ def getReferencesDict(references) -> dict:
         references_dict[ref_path].append((start_line, start_character))
     return references_dict
 
-def formatReferences(references_dict: defaultdict, n_ref: int)
+def formatReferences(references_dict: defaultdict, n_ref: int) -> str:
     ans = f"Found {n_ref} across {len(references_dict.keys)} files:\n\n"
     for fileName, locations in references_dict:
         ans += f"{fileName}:\n"
