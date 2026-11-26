@@ -249,6 +249,11 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
         return "Refrences not found"
     references_dict = getReferencesDict(references)
     return formatReferences(references_dict, len(references))
+
+def getDiagnostics(lspClient: LSPClient) -> str:
+    notifications = lspClient.notifications()
+    print(notifications)
+    return notifications
     
 
 @dataclass
@@ -332,6 +337,7 @@ def agentLoop(client: OpenAI, p: str):
     lspClient = LSPClient.from_environment()
 
     while True:
+        diagnostics = getDiagnostics(lspClient)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
