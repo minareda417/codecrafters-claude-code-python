@@ -252,7 +252,7 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     references_dict = getReferencesDict(references)
     return formatReferences(references_dict, len(references))
 
-@dataclass
+@dataclass(frozen=True)
 class Diagnostic:
     startLine: int
     startCharacter: int
