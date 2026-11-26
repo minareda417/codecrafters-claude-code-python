@@ -416,11 +416,11 @@ def agentLoop(client: OpenAI, p: str):
                 diagnostics = getDiagnostics(lspClient)
             if diagnostics != "":
                 result = "Not executed, review diagnostics and retry"
-            elif tool_call["name"] == "Write" and wroteFile:
+            elif tool_call.function.name == "Write" and wroteFile:
                 result = "Not executed; retry this write next turn"
             else:
                 result = execute_tool(tool_call, client, lspClient)
-                if tool_call == "Write":
+                if tool_call.function.name == "Write":
                     wroteFile = True
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 
