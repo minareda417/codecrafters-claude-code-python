@@ -260,7 +260,6 @@ class Diagnostic:
     endCharacter: int
     severity: int
     message: str
-    fileName: str
 
 def getDiagnostics(lspClient: LSPClient) -> str:
     global CURSOR
