@@ -147,7 +147,10 @@ def execute_tool(tool_call: ChatCompletionMessageFunctionToolCall, client: OpenA
         return LSP(arguments, LSPClient)
 
 def read(arguments: dict) -> str:
-    return getFileContent(arguments["file_path"])
+    path = Path(arguments["file_path"])
+    if (path.is_file()):
+        return getFileContent(arguments["file_path"])
+    return ' '.join([str(itemName) for itemName in path.iterdir()])
 
 def write(arguments: dict, lspClient: LSPClient) -> str:
     content = arguments["content"]
@@ -383,7 +386,7 @@ def agentLoop(client: OpenAI, p: str):
     while True:
         if lspClient:
             diagnostics = getDiagnostics(lspClient)
-            messages[-1]['content'] += diagnostics
+            messages.append({'role': 'system', 'content': diagnostics})
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
