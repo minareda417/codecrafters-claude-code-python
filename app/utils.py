@@ -383,6 +383,7 @@ def agentLoop(client: OpenAI, p: str):
     while True:
         if lspClient:
             diagnostics = getDiagnostics(lspClient)
+            print(diagnostics)
             if diagnostics:
                 messages.append({"role": 'system', 'content': diagnostics})
         print(messages)
