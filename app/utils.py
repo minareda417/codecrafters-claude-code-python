@@ -276,6 +276,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
         if version != VERSIONS[uri]:
             continue
         diagnostics = params["diagnostics"]
+        print(diagnostics)
         if not diagnostics:
             REPORTS[uri] = set()
         else:
