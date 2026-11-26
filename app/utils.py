@@ -256,6 +256,9 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
 class Diagnostic:
     startLine: int
     startCharacter: int
+    endLine: int
+    endCharacter: int
+    severity: int
     message: str
     fileName: str
 
