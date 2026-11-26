@@ -266,7 +266,6 @@ def getDiagnostics(lspClient: LSPClient) -> str:
     res = lspClient.notifications(CURSOR)
     CURSOR = res["cursor"]
     notifications = res["notifications"]
-    print(res)
     ans = ""
     for notification in notifications:
         if notification["method"] != "textDocument/publishDiagnostics":
@@ -274,26 +273,30 @@ def getDiagnostics(lspClient: LSPClient) -> str:
         params = notification["params"]
         uri = params["uri"]
         version = params["version"]
-        if version in VERSIONS and version != VERSIONS[uri]:
+        if uri not in VERSIONS or version != VERSIONS[uri]:
             continue
         diagnostics = params["diagnostics"]
-        print(diagnostics)
         if not diagnostics:
             REPORTS[uri] = set()
         else:
-            ans += f"<new-diagnostics>\nThe following new diagnostic issues were detected\n\n"
-            for diagnostic in diagnostics:
-                start_line = diagnostic["range"]["start"]["line"]
-                start_character = diagnostic["range"]["start"]["character"]
-                end_line = diagnostic["range"]["end"]["line"]
-                end_character = diagnostic["range"]["end"]["character"]
-                severity = diagnostic["severity"]
-                message = diagnostic["message"]
-                newDiagnostic = Diagnostic(start_line, start_character, end_line, end_character, severity, message)
-                REPORTS[uri].add(newDiagnostic)
-                ans += f"{uriToFileName(uri)}:\n\t[Line {start_line+1}:{start_character+1}] {message}\n"
-            ans += f"</new-diagnostics>"
-    print(ans)            
+            current = {
+                Diagnostic(
+                    diagnostic["range"]["start"]["line"],
+                    diagnostic["range"]["start"]["character"],
+                    diagnostic["range"]["end"]["line"],
+                    diagnostic["range"]["end"]["character"],
+                    diagnostic["severity"],
+                    diagnostic["message"],
+                )
+                for diagnostic in params["diagnostics"]
+            }
+            newDiagnostics = current - REPORTS[uri]
+            REPORTS[uri] = current
+            if newDiagnostics:
+                ans += f"<new-diagnostics>\nThe following new diagnostic issues were detected\n\n"
+                for diagnostic in REPORTS[uri]:
+                    ans += f"{uriToFileName(uri)}:\n\t[Line {diagnostic.startLine+1}:{diagnostic.startCharacter+1}] {diagnostic.message}\n"
+                ans += f"</new-diagnostics>"
     return ans
     
 
@@ -380,6 +383,8 @@ def agentLoop(client: OpenAI, p: str):
     while True:
         if lspClient:
             diagnostics = getDiagnostics(lspClient)
+            if diagnostics:
+                messages.append({"role": 'system', 'content': diagnostics})
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
