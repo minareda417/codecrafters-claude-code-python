@@ -275,7 +275,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
             continue
         params = notification["params"]
         uri = params["uri"]
-        version = params["version"]
+        version = params.get("version", None)
         if version is not None and (uri not in VERSIONS or version != VERSIONS[uri]):
             continue
         diagnostics = params["diagnostics"]
