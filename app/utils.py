@@ -266,6 +266,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
     res = lspClient.notifications(CURSOR)
     CURSOR = res["cursor"]
     notifications = res["notifications"]
+    ans = ""
     for notification in notifications:
         if notification["method"] != "textDocument/publishDiagnostics":
             continue
@@ -278,6 +279,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
         if not diagnostics:
             REPORTS[uri] = set()
         else:
+            ans += f"<new-diagnostics>\nThe following new diagnostic issues were detected\n\n"
             for diagnostic in diagnostics:
                 start_line = diagnostic["range"]["start"]["line"]
                 start_character = diagnostic["range"]["start"]["character"]
@@ -287,15 +289,10 @@ def getDiagnostics(lspClient: LSPClient) -> str:
                 message = diagnostic["message"]
                 newDiagnostic = Diagnostic(start_line, start_character, end_line, end_character, severity, message)
                 REPORTS[uri].add(newDiagnostic)
-    print(res)
-    return res
-        
-
-
-
-        
-
-    return res
+                ans += f"{uriToFileName(uri)}:\n\t[Line {start_line}:{start_character}] {message}\n"
+            ans += f"</new-diagnostics>"
+    print(ans)            
+    return ans
     
 
 @dataclass
