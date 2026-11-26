@@ -260,6 +260,7 @@ class Diagnostic:
     fileName: str
 
 def getDiagnostics(lspClient: LSPClient) -> str:
+    global CURSOR
     res = lspClient.notifications(CURSOR)
     CURSOR = res["cursor"]
     notifications = res["notifications"]
