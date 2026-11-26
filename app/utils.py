@@ -266,6 +266,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
     res = lspClient.notifications(CURSOR)
     CURSOR = res["cursor"]
     notifications = res["notifications"]
+    print(res)
     ans = ""
     for notification in notifications:
         if notification["method"] != "textDocument/publishDiagnostics":
