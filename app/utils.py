@@ -276,7 +276,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
         params = notification["params"]
         uri = params["uri"]
         version = params["version"]
-        if uri not in VERSIONS or version != VERSIONS[uri]:
+        if version is not None and (uri not in VERSIONS or version != VERSIONS[uri]):
             continue
         diagnostics = params["diagnostics"]
         if not diagnostics:
@@ -386,10 +386,10 @@ def agentLoop(client: OpenAI, p: str):
     while True:
         if lspClient:
             diagnostics = getDiagnostics(lspClient)
-            print(diagnostics)
+            # print(diagnostics)
             if diagnostics != "":
                 messages.append({'role': 'system', 'content': diagnostics})
-                print(messages)
+                # print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
