@@ -388,6 +388,7 @@ def agentLoop(client: OpenAI, p: str):
             diagnostics = getDiagnostics(lspClient)
             if diagnostics != "":
                 messages.append({'role': 'system', 'content': diagnostics})
+                print(messages)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
