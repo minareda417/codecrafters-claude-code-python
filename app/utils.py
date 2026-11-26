@@ -122,6 +122,8 @@ LSP = {
 
 URI = set()
 VERSIONS = defaultdict(int)
+REPORTS = defaultdict(set)
+CURSOR = 0
 
 TOOLS = [READ, WRITE, BASH, SKILL, LSP]
 
@@ -250,10 +252,47 @@ def findReferences(arguments: dict, lspCLient: LSPClient) -> str:
     references_dict = getReferencesDict(references)
     return formatReferences(references_dict, len(references))
 
+@dataclass
+class Diagnostic:
+    startLine: int
+    startCharacter: int
+    message: str
+    fileName: str
+
 def getDiagnostics(lspClient: LSPClient) -> str:
-    notifications = lspClient.notifications()
-    print(notifications)
-    return notifications
+    res = lspClient.notifications(CURSOR)
+    CURSOR = res["cursor"]
+    notifications = res["notifications"]
+    for notification in notifications:
+        if notification["method"] != "textDocument/publishDiagnostics":
+            continue
+        params = notification["params"]
+        uri = params["uri"]
+        version = params["version"]
+        if version != VERSIONS[uri]:
+            continue
+        diagnostics = params["diagnostics"]
+        if not diagnostics:
+            REPORTS[uri] = set()
+        else:
+            for diagnostic in diagnostics:
+                start_line = diagnostic["range"]["start"]["line"]
+                start_character = diagnostic["range"]["start"]["character"]
+                end_line = diagnostic["range"]["end"]["line"]
+                end_character = diagnostic["range"]["end"]["character"]
+                severity = diagnostic["severity"]
+                message = diagnostic["message"]
+                newDiagnostic = Diagnostic(start_line, start_character, end_line, end_character, severity, message)
+                REPORTS[uri].add(newDiagnostic)
+    print(res)
+    return res
+        
+
+
+
+        
+
+    return res
     
 
 @dataclass
