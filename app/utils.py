@@ -274,7 +274,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
         params = notification["params"]
         uri = params["uri"]
         version = params["version"]
-        if version != VERSIONS[uri]:
+        if version in VERSIONS and version != VERSIONS[uri]:
             continue
         diagnostics = params["diagnostics"]
         print(diagnostics)
@@ -291,7 +291,7 @@ def getDiagnostics(lspClient: LSPClient) -> str:
                 message = diagnostic["message"]
                 newDiagnostic = Diagnostic(start_line, start_character, end_line, end_character, severity, message)
                 REPORTS[uri].add(newDiagnostic)
-                ans += f"{uriToFileName(uri)}:\n\t[Line {start_line}:{start_character}] {message}\n"
+                ans += f"{uriToFileName(uri)}:\n\t[Line {start_line+1}:{start_character+1}] {message}\n"
             ans += f"</new-diagnostics>"
     print(ans)            
     return ans
@@ -378,7 +378,8 @@ def agentLoop(client: OpenAI, p: str):
     lspClient = LSPClient.from_environment()
 
     while True:
-        diagnostics = getDiagnostics(lspClient)
+        if lspClient:
+            diagnostics = getDiagnostics(lspClient)
         response = client.chat.completions.create(model = "anthropic/claude-haiku-4.5",
                                                   messages = messages,
                                                   tools = TOOLS)
